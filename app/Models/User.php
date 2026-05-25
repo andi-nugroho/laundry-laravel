@@ -13,6 +13,18 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    public const ROLE_ADMIN = 'admin';
+
+    public const ROLE_KASIR = 'kasir';
+
+    public const ROLE_USER = 'user';
+
+    public const ROLES = [
+        self::ROLE_ADMIN,
+        self::ROLE_KASIR,
+        self::ROLE_USER,
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -22,6 +34,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -45,5 +58,29 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
+    }
+
+    public function isKasir(): bool
+    {
+        return $this->role === self::ROLE_KASIR;
+    }
+
+    public function isUser(): bool
+    {
+        return $this->role === self::ROLE_USER;
+    }
+
+    public function dashboardRouteName(): string
+    {
+        return match ($this->role) {
+            self::ROLE_ADMIN => 'dashboard.admin',
+            self::ROLE_KASIR => 'dashboard.kasir',
+            default => 'dashboard.user',
+        };
     }
 }
