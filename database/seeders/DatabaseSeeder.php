@@ -47,5 +47,7 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call(ServiceSeeder::class);
+        $this->call(CustomerSeeder::class);
+        $this->call(BookingSeeder::class);
     }
 }

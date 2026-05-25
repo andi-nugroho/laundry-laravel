@@ -1,59 +1,151 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laundry Laravel
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi manajemen laundry berbasis Laravel 12, Breeze, TailwindCSS, dan PostgreSQL. Project ini dibuat bertahap untuk mengelola layanan laundry, data pelanggan, booking laundry, dan monitoring status proses laundry.
 
-## About Laravel
+## Fitur Utama
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Autentikasi Laravel Breeze.
+- Role pengguna: `admin`, `kasir`, dan `user`.
+- Dashboard terpisah untuk setiap role.
+- CRUD layanan laundry untuk admin.
+- CRUD customer dengan akses berbasis role.
+- Booking laundry dengan kode otomatis format `LDY-YYYY-0001`.
+- Perhitungan otomatis estimasi selesai dan total harga booking.
+- Monitoring status laundry dengan badge dan timeline progress.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Role dan Akses
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Admin:
+- Mengakses dashboard admin.
+- Mengelola layanan laundry.
+- Mengelola semua customer.
+- Mengelola semua booking.
+- Mengubah status semua booking.
 
-## Learning Laravel
+Kasir:
+- Mengakses dashboard kasir.
+- Mengelola semua customer.
+- Mengelola semua booking.
+- Mengubah status semua booking.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+User:
+- Mengakses dashboard pelanggan.
+- Melihat dan mengubah data customer miliknya sendiri.
+- Membuat booking untuk dirinya sendiri.
+- Melihat booking dan status miliknya sendiri.
+- Mengubah booking miliknya selama status masih `booking_masuk`.
+- Tidak bisa menghapus booking atau mengubah status.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Status Laundry
 
-## Laravel Sponsors
+Status booking yang digunakan:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- `booking_masuk`
+- `diterima`
+- `dicuci`
+- `dikeringkan`
+- `disetrika`
+- `selesai`
+- `diambil`
+- `dibatalkan`
 
-### Premium Partners
+Admin dan kasir dapat mengubah status melalui halaman booking, detail booking, edit booking, atau route:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```bash
+PATCH /bookings/{booking}/status
+```
 
-## Contributing
+## Struktur Data Inti
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Services:
+- Data layanan laundry.
+- Harga per kg dan estimasi hari digunakan untuk menghitung booking.
 
-## Code of Conduct
+Customers:
+- Data pelanggan.
+- Bisa terhubung ke akun user melalui `user_id`.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Bookings:
+- Terhubung ke `users`, `customers`, dan `services`.
+- `booking_code` dibuat otomatis.
+- `estimated_finish_date` dihitung dari `booking_date + estimated_days service`.
+- `total_price` dihitung dari `weight x service.price_per_kg`.
 
-## Security Vulnerabilities
+## Akun Seeder
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Seeder membuat akun contoh:
 
-## License
+```text
+Admin : admin@laundry.test / password
+Kasir : kasir@laundry.test / password
+User  : user@laundry.test / password
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Seeder juga membuat contoh layanan, pelanggan, dan booking laundry.
+
+## Menjalankan Project
+
+Project ini menggunakan Laravel Sail dan PostgreSQL.
+
+```bash
+docker compose up -d
+docker compose exec laravel.test php artisan migrate --seed
+docker compose exec laravel.test npm run build
+```
+
+Buka aplikasi:
+
+```text
+http://localhost
+```
+
+## Command Berguna
+
+Menjalankan migration dan seeder:
+
+```bash
+docker compose exec laravel.test php artisan migrate --seed
+```
+
+Melihat route booking:
+
+```bash
+docker compose exec laravel.test php artisan route:list --path=bookings
+```
+
+Menjalankan test:
+
+```bash
+docker compose exec laravel.test php artisan test
+```
+
+Merapikan format kode:
+
+```bash
+docker compose exec laravel.test ./vendor/bin/pint
+```
+
+## Modul yang Sudah Dibangun
+
+Auth dan dashboard:
+- Login, register, logout, profile.
+- Redirect dashboard berdasarkan role.
+
+Services:
+- CRUD layanan laundry.
+- Hanya admin yang bisa mengelola.
+
+Customers:
+- CRUD pelanggan.
+- Admin/kasir mengelola semua pelanggan.
+- User hanya melihat dan mengubah customer miliknya sendiri.
+
+Bookings:
+- CRUD booking laundry.
+- Admin/kasir mengelola semua booking.
+- User mengelola booking miliknya sendiri dengan batasan status.
+
+Monitoring:
+- Update status booking untuk admin/kasir.
+- User hanya melihat status booking miliknya.
+- Timeline progress status pada detail booking.
