@@ -10,9 +10,12 @@
 <x-responsive-nav-link :href="route('monitoring.index')" :active="request()->routeIs('monitoring.*')">
     {{ __('Monitoring Laundry') }}
 </x-responsive-nav-link>
-<x-responsive-nav-link href="#" :active="false">
-    Transaksi <span class="text-xs text-gray-400">(segera)</span>
+<x-responsive-nav-link :href="route('payments.index')" :active="request()->routeIs('payments.*')">
+    {{ __('Transaksi Pembayaran') }}
 </x-responsive-nav-link>
 <x-responsive-nav-link href="#" :active="false">
     Riwayat <span class="text-xs text-gray-400">(segera)</span>
+</x-responsive-nav-link>
+<x-responsive-nav-link :href="route('reports.transactions')" :active="request()->routeIs('reports.transactions')">
+    {{ __('Laporan Transaksi') }}
 </x-responsive-nav-link>

@@ -13,6 +13,9 @@
 <x-responsive-nav-link href="#" :active="false">
     Riwayat <span class="text-xs text-gray-400">(segera)</span>
 </x-responsive-nav-link>
+<x-responsive-nav-link :href="route('payments.index')" :active="request()->routeIs('payments.*')">
+    {{ __('Riwayat Pembayaran') }}
+</x-responsive-nav-link>
 <x-responsive-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.*')">
     {{ __('Data Saya') }}
 </x-responsive-nav-link>

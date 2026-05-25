@@ -3,7 +3,9 @@
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,8 +17,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'redirect'])->name('dashboard');
     Route::get('/monitoring', [BookingController::class, 'index'])->name('monitoring.index');
     Route::patch('/bookings/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.update-status');
+    Route::get('/payments/{payment}/invoice', [PaymentController::class, 'invoice'])->name('payments.invoice');
     Route::resource('bookings', BookingController::class);
     Route::resource('customers', CustomerController::class);
+    Route::resource('payments', PaymentController::class);
+    Route::get('/reports/transactions', [ReportController::class, 'transactions'])->name('reports.transactions');
+    Route::get('/reports/revenue', [ReportController::class, 'revenue'])->name('reports.revenue');
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/dashboard', [DashboardController::class, 'admin'])->name('dashboard.admin');

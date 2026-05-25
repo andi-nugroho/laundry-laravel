@@ -84,6 +84,14 @@
                                             <a href="{{ route('bookings.edit', $booking) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
                                         @endcan
 
+                                        @if ((Auth::user()->isAdmin() || Auth::user()->isKasir()) && (! $booking->payment || $booking->payment->payment_status !== \App\Models\Payment::STATUS_PAID))
+                                            @if ($booking->payment)
+                                                <a href="{{ route('payments.edit', $booking->payment) }}" class="text-emerald-600 hover:text-emerald-900">Bayar</a>
+                                            @else
+                                                <a href="{{ route('payments.create', ['booking_id' => $booking->id]) }}" class="text-emerald-600 hover:text-emerald-900">Input Pembayaran</a>
+                                            @endif
+                                        @endif
+
                                         @can('delete', $booking)
                                             <form action="{{ route('bookings.destroy', $booking) }}" method="POST" class="inline"
                                                 onsubmit="return confirm('Yakin ingin menghapus booking ini?');">

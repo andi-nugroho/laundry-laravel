@@ -13,6 +13,9 @@
 <span class="inline-flex items-center px-1 pt-1 text-sm font-medium leading-5 text-gray-400 cursor-not-allowed" title="Segera hadir">
     Riwayat
 </span>
+<x-nav-link :href="route('payments.index')" :active="request()->routeIs('payments.*')">
+    {{ __('Riwayat Pembayaran') }}
+</x-nav-link>
 <x-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.*')">
     {{ __('Data Saya') }}
 </x-nav-link>

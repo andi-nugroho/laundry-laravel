@@ -13,9 +13,12 @@
 <x-nav-link :href="route('monitoring.index')" :active="request()->routeIs('monitoring.*')">
     {{ __('Monitoring Laundry') }}
 </x-nav-link>
-<span class="inline-flex items-center px-1 pt-1 text-sm font-medium leading-5 text-gray-400 cursor-not-allowed" title="Segera hadir">
-    Transaksi
-</span>
-<span class="inline-flex items-center px-1 pt-1 text-sm font-medium leading-5 text-gray-400 cursor-not-allowed" title="Segera hadir">
-    Laporan
-</span>
+<x-nav-link :href="route('payments.index')" :active="request()->routeIs('payments.*')">
+    {{ __('Transaksi Pembayaran') }}
+</x-nav-link>
+<x-nav-link :href="route('reports.transactions')" :active="request()->routeIs('reports.transactions')">
+    {{ __('Laporan Transaksi') }}
+</x-nav-link>
+<x-nav-link :href="route('reports.revenue')" :active="request()->routeIs('reports.revenue')">
+    {{ __('Laporan Pendapatan') }}
+</x-nav-link>

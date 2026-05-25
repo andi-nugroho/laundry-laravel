@@ -21,7 +21,7 @@ class BookingController extends Controller
         Gate::authorize('viewAny', Booking::class);
 
         $query = Booking::query()
-            ->with(['user', 'customer', 'service'])
+            ->with(['user', 'customer', 'service', 'payment'])
             ->latest('booking_date')
             ->latest('id');
 
@@ -67,7 +67,7 @@ class BookingController extends Controller
         Gate::authorize('view', $booking);
 
         return view('bookings.show', [
-            'booking' => $booking->load(['user', 'customer', 'service']),
+            'booking' => $booking->load(['user', 'customer', 'service', 'payment']),
         ]);
     }
 

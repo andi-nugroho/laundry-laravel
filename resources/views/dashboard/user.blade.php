@@ -5,7 +5,7 @@
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                     Dashboard Pelanggan
                 </h2>
-                <p class="mt-1 text-sm text-gray-500">Pantau booking dan status cucian Anda</p>
+                <p class="mt-1 text-sm text-gray-500">Pantau booking dan pembayaran laundry Anda</p>
             </div>
             <span class="inline-flex items-center rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-100">
                 Pelanggan
@@ -16,30 +16,43 @@
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <x-stat-card label="Booking Aktif" :value="number_format($stats['booking_aktif'])" color="indigo" />
-                <x-stat-card label="Status Cucian" :value="$stats['status_cucian']" color="amber" />
-                <x-stat-card label="Riwayat Booking" :value="number_format($stats['riwayat_booking'])" color="slate" />
-                <x-stat-card label="Estimasi Selesai" :value="$stats['estimasi_selesai']" color="emerald" />
-            </div>
-
-            <div class="bg-white shadow-sm sm:rounded-xl ring-1 ring-gray-100 p-6">
-                <h3 class="text-base font-semibold text-gray-900">Status Cucian</h3>
-                <p class="mt-1 text-sm text-gray-500">Timeline pelacakan status akan tersedia setelah modul booking aktif.</p>
-                <div class="mt-6 flex flex-col sm:flex-row gap-4">
-                    @foreach (['Diterima', 'Dicuci', 'Dikeringkan', 'Disetrika', 'Selesai'] as $step)
-                        <div class="flex-1 rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 py-3 text-center">
-                            <span class="text-xs font-medium text-gray-400">{{ $step }}</span>
-                        </div>
-                    @endforeach
-                </div>
+                <x-stat-card label="Total Booking Saya" :value="number_format($stats['total_bookings'])" color="indigo" />
+                <x-stat-card label="Booking Aktif" :value="number_format($stats['active_bookings'])" color="amber" />
+                <x-stat-card label="Booking Selesai" :value="number_format($stats['done_bookings'])" color="emerald" />
+                <x-stat-card label="Pembayaran Paid" :value="'Rp '.number_format($stats['paid_payments_total'], 0, ',', '.')" color="sky" />
             </div>
 
             <div class="bg-white shadow-sm sm:rounded-xl ring-1 ring-gray-100 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100">
-                    <h3 class="text-base font-semibold text-gray-900">Riwayat Booking</h3>
+                    <h3 class="text-base font-semibold text-gray-900">5 Booking Terbaru Saya</h3>
                 </div>
-                <div class="px-6 py-12 text-center text-sm text-gray-500">
-                    Anda belum memiliki riwayat booking. Mulai booking laundry setelah fitur tersedia.
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kode</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Layanan</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pembayaran</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 bg-white">
+                            @forelse ($recentBookings as $booking)
+                                <tr>
+                                    <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $booking->booking_code }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $booking->service?->name ?? '-' }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $booking->booking_date?->format('d M Y') }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-600">{{ str_replace('_', ' ', ucfirst($booking->status)) }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $booking->payment ? ucfirst($booking->payment->payment_status) : '-' }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500">Anda belum memiliki booking.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

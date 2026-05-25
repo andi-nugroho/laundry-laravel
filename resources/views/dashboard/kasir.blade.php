@@ -16,47 +16,75 @@
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <x-stat-card label="Booking Masuk Hari Ini" :value="number_format($stats['booking_hari_ini'])" color="sky" />
-                <x-stat-card label="Laundry Sedang Diproses" :value="number_format($stats['laundry_proses'])" color="amber" />
-                <x-stat-card label="Transaksi Hari Ini" :value="number_format($stats['transaksi_hari_ini'])" color="indigo" />
-                <x-stat-card label="Cucian Siap Diambil" :value="number_format($stats['siap_diambil'])" color="emerald" />
+                <x-stat-card label="Booking Masuk Hari Ini" :value="number_format($stats['booking_today'])" color="sky" />
+                <x-stat-card label="Laundry Sedang Diproses" :value="number_format($stats['laundry_processing'])" color="amber" />
+                <x-stat-card label="Payment Belum Lunas" :value="number_format($stats['payment_pending'])" color="rose" />
+                <x-stat-card label="Pembayaran Hari Ini" :value="'Rp '.number_format($stats['payment_today_total'], 0, ',', '.')" color="emerald" />
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 bg-white shadow-sm sm:rounded-xl ring-1 ring-gray-100 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                        <h3 class="text-base font-semibold text-gray-900">Antrian Operasional</h3>
-                        <span class="text-xs text-gray-400">Hari ini</span>
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div class="bg-white shadow-sm sm:rounded-xl ring-1 ring-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100">
+                        <h3 class="text-base font-semibold text-gray-900">5 Booking Perlu Diproses</h3>
                     </div>
-                    <div class="px-6 py-12 text-center text-sm text-gray-500">
-                        Belum ada antrian. Fitur monitoring akan aktif pada tahap berikutnya.
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kode</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Layanan</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 bg-white">
+                                @forelse ($processBookings as $booking)
+                                    <tr>
+                                        <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $booking->booking_code }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-600">{{ $booking->customer?->name ?? '-' }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-600">{{ $booking->service?->name ?? '-' }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-600">{{ str_replace('_', ' ', ucfirst($booking->status)) }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-500">Tidak ada booking yang perlu diproses.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="bg-white shadow-sm sm:rounded-xl ring-1 ring-gray-100 p-6">
-                    <h3 class="text-base font-semibold text-gray-900">Aksi Cepat</h3>
-                    <ul class="mt-4 space-y-2 text-sm text-gray-600">
-                        <li class="flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2">
-                            <span class="h-2 w-2 rounded-full bg-amber-400"></span>
-                            Input booking baru
-                        </li>
-                        <li class="flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2">
-                            <span class="h-2 w-2 rounded-full bg-sky-400"></span>
-                            Update status cucian
-                        </li>
-                        <li class="flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2">
-                            <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
-                            Cetak nota transaksi
-                        </li>
-                    </ul>
-                </div>
-            </div>
 
-            <div class="bg-white shadow-sm sm:rounded-xl ring-1 ring-gray-100 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100">
-                    <h3 class="text-base font-semibold text-gray-900">Riwayat Transaksi Terbaru</h3>
-                </div>
-                <div class="px-6 py-12 text-center text-sm text-gray-500">
-                    Belum ada transaksi. Fitur akan aktif pada tahap transaksi & pembayaran.
+                <div class="bg-white shadow-sm sm:rounded-xl ring-1 ring-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100">
+                        <h3 class="text-base font-semibold text-gray-900">5 Payment Unpaid/Partial</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kode</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Booking</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sisa</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 bg-white">
+                                @forelse ($pendingPayments as $payment)
+                                    <tr>
+                                        <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $payment->payment_code }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-600">{{ $payment->booking?->booking_code ?? '-' }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">Rp {{ number_format(max($payment->total_bill - $payment->amount_paid, 0), 0, ',', '.') }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-600">{{ ucfirst($payment->payment_status) }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-500">Tidak ada payment tertunda.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

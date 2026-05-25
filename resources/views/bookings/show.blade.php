@@ -18,6 +18,12 @@
                         <x-primary-button type="button">Edit</x-primary-button>
                     </a>
                 @endcan
+
+                @if ((Auth::user()->isAdmin() || Auth::user()->isKasir()) && (! $booking->payment || $booking->payment->payment_status !== \App\Models\Payment::STATUS_PAID))
+                    <a href="{{ $booking->payment ? route('payments.edit', $booking->payment) : route('payments.create', ['booking_id' => $booking->id]) }}">
+                        <x-primary-button type="button">{{ $booking->payment ? 'Bayar' : 'Input Pembayaran' }}</x-primary-button>
+                    </a>
+                @endif
             </div>
         </div>
     </x-slot>
@@ -73,6 +79,22 @@
                     <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-8">
                         <dt class="text-sm font-medium text-gray-500">Total Harga</dt>
                         <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</dd>
+                    </div>
+                    <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-8">
+                        <dt class="text-sm font-medium text-gray-500">Pembayaran</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                            @if ($booking->payment)
+                                <a href="{{ route('payments.show', $booking->payment) }}" class="text-indigo-600 hover:text-indigo-900">
+                                    {{ $booking->payment->payment_code }}
+                                </a>
+                                <span class="text-gray-500">({{ ucfirst($booking->payment->payment_status) }})</span>
+                                <a href="{{ route('payments.invoice', $booking->payment) }}" class="ms-2 text-emerald-600 hover:text-emerald-900">
+                                    Cetak Nota
+                                </a>
+                            @else
+                                Belum ada pembayaran
+                            @endif
+                        </dd>
                     </div>
                     <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-8">
                         <dt class="text-sm font-medium text-gray-500">Tipe Pengambilan</dt>
