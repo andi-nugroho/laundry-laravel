@@ -186,9 +186,9 @@ Docker/Sail is recommended for local parity; production can use any PHP 8.2+ hos
 
 ## Screenshots
 
-| Landing | Dashboard |
+| Landing Page | Dashboard |
 | ------- | --------- |
-| ![Landing](public/assets/preview-laundry.png) | _Add dashboard screenshot to `public/assets/` when ready_ |
+| ![Landing](public/assets/preview-laundry.png) | ![Dashboard](public/assets/dashboard) |
 
 Additional UI captures can be placed under `public/assets/` and linked here.
 

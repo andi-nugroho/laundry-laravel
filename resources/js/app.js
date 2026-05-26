@@ -1,6 +1,6 @@
 import './bootstrap';
-
 import Alpine from 'alpinejs';
+import Lenis from 'lenis';
 
 const isDev = import.meta.env.DEV;
 
@@ -119,3 +119,52 @@ window.dashboardRealtime = function () {
 window.Alpine = Alpine;
 
 Alpine.start();
+
+// Initialize smooth scrolling and scroll reveal animations
+document.addEventListener('DOMContentLoaded', () => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // 1. Lenis Smooth Scroll
+    if (!prefersReducedMotion) {
+        try {
+            const lenis = new Lenis({
+                duration: 1.2,
+                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                orientation: 'vertical',
+                gestureOrientation: 'vertical',
+                smoothWheel: true,
+                wheelMultiplier: 1,
+            });
+
+            function raf(time) {
+                lenis.raf(time);
+                requestAnimationFrame(raf);
+            }
+            requestAnimationFrame(raf);
+        } catch (e) {
+            console.warn('Lenis smooth scroll failed to initialize:', e);
+        }
+    }
+
+    // 2. Scroll Reveal Intersection Observer
+    const revealElements = document.querySelectorAll('.reveal');
+    if (!prefersReducedMotion && 'IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                } else {
+                    entry.target.classList.remove('revealed');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -40px 0px'
+        });
+
+        revealElements.forEach(el => observer.observe(el));
+    } else {
+        // Fallback for browsers without IntersectionObserver or when reduced motion is preferred
+        revealElements.forEach(el => el.classList.add('revealed'));
+    }
+});
