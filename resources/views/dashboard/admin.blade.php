@@ -14,18 +14,20 @@
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8" x-data="dashboardRealtime()" x-init="init()">
+            <x-dashboard-realtime-bar />
+
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                <x-stat-card label="Total Customers" :value="number_format($stats['total_customers'])" color="indigo" />
-                <x-stat-card label="Services Aktif" :value="number_format($stats['total_services_active'])" color="sky" />
-                <x-stat-card label="Total Bookings" :value="number_format($stats['total_bookings'])" color="slate" />
-                <x-stat-card label="Bookings Hari Ini" :value="number_format($stats['total_bookings_today'])" color="amber" />
-                <x-stat-card label="Booking Masuk" :value="number_format($stats['booking_masuk'])" color="rose" />
-                <x-stat-card label="Sedang Diproses" :value="number_format($stats['laundry_processing'])" color="amber" />
-                <x-stat-card label="Booking Selesai" :value="number_format($stats['laundry_done'])" color="emerald" />
-                <x-stat-card label="Total Payments" :value="number_format($stats['total_payments'])" color="indigo" />
-                <x-stat-card label="Pendapatan Paid" :value="'Rp '.number_format($stats['total_revenue_paid'], 0, ',', '.')" color="emerald" />
-                <x-stat-card label="Piutang" :value="'Rp '.number_format($stats['total_receivables'], 0, ',', '.')" color="rose" />
+                <x-stat-card stat="total_customers" label="Total Customers" :value="number_format($stats['total_customers'])" asset="assets/laundry-basket.webp" color="indigo" />
+                <x-stat-card stat="total_services_active" label="Services Aktif" :value="number_format($stats['total_services_active'])" asset="assets/detergent.webp" color="sky" />
+                <x-stat-card stat="total_bookings" label="Total Bookings" :value="number_format($stats['total_bookings'])" asset="assets/calendar.webp" color="slate" />
+                <x-stat-card stat="total_bookings_today" label="Bookings Hari Ini" :value="number_format($stats['total_bookings_today'])" asset="assets/monitor-graph.webp" color="amber" />
+                <x-stat-card stat="booking_masuk" label="Booking Masuk" :value="number_format($stats['booking_masuk'])" asset="assets/package.webp" color="rose" />
+                <x-stat-card stat="laundry_processing" label="Sedang Diproses" :value="number_format($stats['laundry_processing'])" asset="assets/washing-machine.webp" color="amber" />
+                <x-stat-card stat="laundry_done" label="Booking Selesai" :value="number_format($stats['laundry_done'])" asset="assets/folded-clothes.webp" color="emerald" />
+                <x-stat-card stat="total_payments" label="Total Payments" :value="number_format($stats['total_payments'])" asset="assets/receipt.webp" color="indigo" />
+                <x-stat-card stat="total_revenue_paid" label="Pendapatan Paid" :value="'Rp '.number_format($stats['total_revenue_paid'], 0, ',', '.')" asset="assets/wallet.webp" color="emerald" />
+                <x-stat-card stat="total_receivables" label="Piutang" :value="'Rp '.number_format($stats['total_receivables'], 0, ',', '.')" asset="assets/chartpie.webp" color="rose" />
             </div>
 
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">

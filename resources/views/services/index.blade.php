@@ -40,10 +40,17 @@
                                 @forelse ($services as $service)
                                     <tr>
                                         <td class="px-6 py-4">
-                                            <div class="text-sm font-black text-neutral-900">{{ $service->name }}</div>
-                                            @if ($service->description)
-                                                <div class="mt-1 max-w-xs truncate text-sm font-medium text-neutral-500">{{ $service->description }}</div>
-                                            @endif
+                                            <div class="flex items-center gap-3">
+                                                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#E8DCCB] bg-[#FBF3E7] p-2 shadow-sm">
+                                                    @include('services._icon', ['name' => $service->name, 'class' => 'h-8 w-8'])
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <div class="text-sm font-black text-neutral-900">{{ $service->name }}</div>
+                                                    @if ($service->description)
+                                                        <div class="mt-1 max-w-xs truncate text-sm font-medium text-neutral-500">{{ $service->description }}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
                                         </td>
                                         <td class="whitespace-nowrap px-6 py-4 text-sm font-bold text-neutral-900">
                                             Rp {{ number_format($service->price_per_kg, 0, ',', '.') }}
@@ -84,10 +91,13 @@
                 <x-slot name="cards">
                     <div class="grid gap-4 p-4 sm:grid-cols-2 xl:grid-cols-3">
                         @forelse ($services as $service)
-                            <article class="vault-record-card">
+                            <article class="vault-record-card overflow-hidden">
                                 <div class="flex items-start justify-between gap-3">
-                                    <div>
-                                        <h3 class="text-base font-black text-neutral-950">{{ $service->name }}</h3>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex h-20 w-20 items-center justify-center rounded-3xl border border-[#E8DCCB] bg-[#FBF3E7] p-3 shadow-sm">
+                                            @include('services._icon', ['name' => $service->name, 'class' => 'h-14 w-14'])
+                                        </div>
+                                        <h3 class="mt-4 text-base font-black text-neutral-950">{{ $service->name }}</h3>
                                         <p class="mt-1 line-clamp-2 text-sm font-medium text-neutral-500">{{ $service->description ?: 'Tidak ada deskripsi.' }}</p>
                                     </div>
                                     @if ($service->is_active)

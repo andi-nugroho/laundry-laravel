@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\DashboardBroadcast;
 use App\Http\Requests\StoreBookingRequest;
 use App\Http\Requests\UpdateBookingRequest;
 use App\Http\Requests\UpdateBookingStatusRequest;
 use App\Models\Booking;
 use App\Models\Customer;
+use App\Models\Payment;
 use App\Models\Service;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -113,18 +115,22 @@ class BookingController extends Controller
 
         $booking = Booking::create($data);
 
+        DashboardBroadcast::bookingChanged($booking);
+
         if ($request->user()->isUser()) {
             $paymentDate = now()->toDateTimeString();
-            $payment = \App\Models\Payment::create([
+            $payment = Payment::create([
                 'booking_id' => $booking->id,
-                'payment_code' => \App\Models\Payment::generatePaymentCode($paymentDate),
+                'payment_code' => Payment::generatePaymentCode($paymentDate),
                 'payment_date' => $paymentDate,
-                'payment_method' => \App\Models\Payment::METHOD_EWALLET, // default dummy
+                'payment_method' => Payment::METHOD_EWALLET, // default dummy
                 'amount_paid' => 0,
                 'total_bill' => $booking->total_price,
                 'change_amount' => 0,
-                'payment_status' => \App\Models\Payment::STATUS_UNPAID,
+                'payment_status' => Payment::STATUS_UNPAID,
             ]);
+
+            DashboardBroadcast::paymentChanged($payment);
 
             return redirect()
                 ->route('payments.pay', $payment)
@@ -179,6 +185,7 @@ class BookingController extends Controller
         }
 
         $booking->update($data);
+        DashboardBroadcast::bookingChanged($booking);
 
         return redirect()
             ->route('bookings.show', $booking)
@@ -189,6 +196,7 @@ class BookingController extends Controller
     {
         Gate::authorize('delete', $booking);
 
+        DashboardBroadcast::bookingChanged($booking);
         $booking->delete();
 
         return redirect()
@@ -199,6 +207,7 @@ class BookingController extends Controller
     public function updateStatus(UpdateBookingStatusRequest $request, Booking $booking): RedirectResponse
     {
         $booking->update($request->validated());
+        DashboardBroadcast::bookingChanged($booking);
 
         return back()->with('success', 'Status booking laundry berhasil diperbarui.');
     }

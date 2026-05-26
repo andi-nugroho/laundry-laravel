@@ -1,6 +1,9 @@
 <x-responsive-nav-link :href="route('dashboard.user')" :active="request()->routeIs('dashboard.user')">
     {{ __('Dashboard') }}
 </x-responsive-nav-link>
+<x-responsive-nav-link :href="route('user.orders.create')" :active="request()->routeIs('user.orders.*')">
+    {{ __('Pesan Laundry') }}
+</x-responsive-nav-link>
 <x-responsive-nav-link :href="route('bookings.index')" :active="request()->routeIs('bookings.*')">
     {{ __('Booking Laundry') }}
 </x-responsive-nav-link>

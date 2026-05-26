@@ -62,8 +62,8 @@
                 </nav>
             </header>
 
-            <section class="relative z-10 vault-section pt-36 pb-16 lg:pt-40 lg:pb-24 min-h-[calc(100vh-80px)] flex items-center">
-                <div class="w-full grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+            <section class="relative z-10 vault-section flex min-h-[calc(100vh-72px)] items-center pt-28 pb-12 sm:pt-[7.25rem] lg:pt-32 lg:pb-20">
+                <div class="grid w-full items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
                     <div class="max-w-3xl">
                         <p class="font-mono-vault mb-6 inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-[#FF6626]">
                             <span class="h-px w-10 bg-[#FF6626]"></span>
@@ -111,34 +111,27 @@
                         </div>
                     </div>
 
-                    <div class="relative h-[450px] w-full flex items-center justify-center">
-                        <style>
-                            @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-                            @keyframes float-delayed { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-                            @keyframes float-slow { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-10px) rotate(5deg); } }
-                            .animate-float { animation: float 6s ease-in-out infinite; }
-                            .animate-float-delayed { animation: float-delayed 7s ease-in-out infinite 1s; }
-                            .animate-float-slow { animation: float-slow 8s ease-in-out infinite 2s; }
-                        </style>
-                        <div class="relative w-full max-w-[480px] aspect-square">
-                            <div class="absolute inset-0 bg-[#FF6626]/10 rounded-full blur-[80px] animate-pulse"></div>
-                            
-                            <img src="{{ asset('assets/washing-machine.webp') }}" alt="Mesin Cuci" class="absolute top-1/2 left-1/2 w-64 -translate-x-1/2 -translate-y-1/2 drop-shadow-2xl z-20 animate-float">
-                            <img src="{{ asset('assets/laundry-basket.webp') }}" alt="Keranjang" class="absolute bottom-10 -left-4 w-36 drop-shadow-xl z-30 animate-float-delayed">
-                            <img src="{{ asset('assets/iron.webp') }}" alt="Setrika" class="absolute top-16 right-0 w-32 drop-shadow-xl z-30 animate-float-slow">
-                            <img src="{{ asset('assets/detergent.webp') }}" alt="Deterjen" class="absolute top-0 -left-10 w-24 z-10 animate-float">
-                            <img src="{{ asset('assets/receipt.webp') }}" alt="Nota" class="absolute bottom-24 -right-12 w-20 z-10 animate-float-delayed">
-                            
-                            <div class="absolute bottom-4 -right-4 lg:-right-12 z-40 animate-float-slow w-48 rounded-2xl border border-white/40 bg-white/75 p-4 shadow-xl shadow-black/5 backdrop-blur-md">
-                                <p class="text-[10px] font-bold uppercase tracking-wider text-[#FF6626]">Live Operation</p>
-                                <p class="mt-1 text-sm font-black text-neutral-900">LDY-2026-0001</p>
-                                <div class="mt-2 flex items-center gap-2 text-xs font-semibold text-neutral-500">
-                                    <span class="relative flex h-2 w-2">
-                                      <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#FF6626] opacity-75"></span>
-                                      <span class="relative inline-flex h-2 w-2 rounded-full bg-[#FF6626]"></span>
-                                    </span>
-                                    Proses Dicuci
-                                </div>
+                    <div class="vault-hero-visual" aria-hidden="true">
+                        <div class="vault-hero-glow"></div>
+                        <div class="vault-hero-glow-secondary"></div>
+
+                        <img
+                            src="{{ asset('assets/washing-machine.webp') }}"
+                            alt="Mesin cuci VAULTLAUNDRY"
+                            class="vault-hero-main"
+                            width="480"
+                            height="480"
+                        >
+
+                        <div class="vault-hero-live-card">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-[#FF6626]">Live Operation</p>
+                            <p class="mt-1 text-sm font-black text-neutral-900">LDY-2026-0001</p>
+                            <div class="mt-2 flex items-center gap-2 text-xs font-semibold text-neutral-500">
+                                <span class="relative flex h-2 w-2">
+                                    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#FF6626] opacity-75"></span>
+                                    <span class="relative inline-flex h-2 w-2 rounded-full bg-[#FF6626]"></span>
+                                </span>
+                                Proses Dicuci
                             </div>
                         </div>
                     </div>
@@ -337,9 +330,17 @@
                         </div>
                     </div>
                     
-                    <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 relative z-10">
+                    <div class="relative z-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 md:flex-row">
                         <p class="text-sm text-white/50">&copy; {{ date('Y') }} VAULTLAUNDRY. All rights reserved.</p>
-                        <p class="text-sm text-white/50">Built with Laravel & Tailwind</p>
+                        <p class="text-sm text-white/50">
+                            Open Source | 2026 Created by
+                            <a
+                                href="https://andidelouise.net"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="ml-1 font-bold text-white underline decoration-[#FF6626] decoration-2 underline-offset-4 transition hover:text-[#FF6626]"
+                            >Andi Nugroho</a>
+                        </p>
                     </div>
                 </div>
 

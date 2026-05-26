@@ -1,12 +1,46 @@
 @php
     $service = $service ?? null;
+    $initialName = old('name', $service?->name ?? '');
+    $serviceIconMap = [
+        ['keywords' => ['setrika saja'], 'icon' => asset('assets/folded-clothes.webp')],
+        ['keywords' => ['cuci setrika'], 'icon' => asset('assets/iron.webp')],
+        ['keywords' => ['express'], 'icon' => asset('assets/detergent.webp')],
+        ['keywords' => ['sepatu'], 'icon' => asset('assets/package.webp')],
+        ['keywords' => ['bedcover'], 'icon' => asset('assets/folded-clothes.webp')],
+        ['keywords' => ['kering', 'reguler', 'cuci'], 'icon' => asset('assets/washing-machine.webp')],
+    ];
 @endphp
 
-<div class="space-y-6">
+<div
+    class="space-y-6"
+    x-data="{
+        serviceName: @js($initialName),
+        fallbackIcon: @js(asset('assets/laundry-basket.webp')),
+        iconRules: @js($serviceIconMap),
+        iconForName() {
+            const name = (this.serviceName || '').toLowerCase();
+            const matched = this.iconRules.find(rule => rule.keywords.some(keyword => name.includes(keyword)));
+            return matched ? matched.icon : this.fallbackIcon;
+        },
+    }"
+>
+    <div class="flex items-center gap-4 rounded-3xl border border-[#E8DCCB] bg-[#FBF3E7] p-4">
+        <div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl border border-[#E8DCCB] bg-[#FFF9F1] p-3 shadow-sm">
+            <img :src="iconForName()" alt="Preview icon layanan" class="h-14 w-14 object-contain">
+        </div>
+        <div>
+            <div class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-[#FF6626]">Icon Otomatis</div>
+            <p class="mt-1 text-sm font-semibold text-neutral-700">
+                Icon mengikuti nama layanan, misalnya Cuci Kering, Cuci Setrika, Express, Sepatu, atau Bedcover.
+            </p>
+        </div>
+    </div>
+
     <div>
         <x-input-label for="name" value="Nama Layanan" />
         <x-text-input id="name" name="name" type="text" class="mt-1 block w-full"
-            :value="old('name', $service?->name)" required autofocus />
+            x-model="serviceName"
+            :value="$initialName" required autofocus />
         <x-input-error class="mt-2" :messages="$errors->get('name')" />
     </div>
 

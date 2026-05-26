@@ -4,6 +4,7 @@
 $label = trim(preg_replace('/\s+/', ' ', strip_tags((string) $slot)));
 $icon = match (true) {
     str_contains($label, 'Dashboard') => 'dashboard',
+    str_contains($label, 'Pesan') => 'cart',
     str_contains($label, 'Layanan') => 'sparkles',
     str_contains($label, 'Pelanggan') || str_contains($label, 'Data Saya') => 'users',
     str_contains($label, 'Booking') => 'calendar',
@@ -34,6 +35,9 @@ $iconClasses = ($active ?? false)
                     @break
                 @case('sparkles')
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3Zm6 11 .8 2.2L21 17l-2.2.8L18 20l-.8-2.2L15 17l2.2-.8L18 14ZM5 14l.8 2.2L8 17l-2.2.8L5 20l-.8-2.2L2 17l2.2-.8L5 14Z" />
+                    @break
+                @case('cart')
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5h2l2.2 9.5a2 2 0 0 0 2 1.5h6.9a2 2 0 0 0 1.9-1.4L21 8H7M10 20h.01M17 20h.01" />
                     @break
                 @case('users')
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0Zm-12 9a8 8 0 0 1 16 0M18 8a3 3 0 0 1 0 6m3 6a5.5 5.5 0 0 0-3-4.9" />

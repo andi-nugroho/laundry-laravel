@@ -14,12 +14,14 @@
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8" x-data="dashboardRealtime()" x-init="init()">
+            <x-dashboard-realtime-bar />
+
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <x-stat-card label="Booking Masuk Hari Ini" :value="number_format($stats['booking_today'])" color="sky" />
-                <x-stat-card label="Laundry Sedang Diproses" :value="number_format($stats['laundry_processing'])" color="amber" />
-                <x-stat-card label="Payment Belum Lunas" :value="number_format($stats['payment_pending'])" color="rose" />
-                <x-stat-card label="Pembayaran Hari Ini" :value="'Rp '.number_format($stats['payment_today_total'], 0, ',', '.')" color="emerald" />
+                <x-stat-card stat="booking_today" label="Booking Masuk Hari Ini" :value="number_format($stats['booking_today'])" asset="assets/calendar.webp" color="sky" />
+                <x-stat-card stat="laundry_processing" label="Laundry Sedang Diproses" :value="number_format($stats['laundry_processing'])" asset="assets/washing-machine.webp" color="amber" />
+                <x-stat-card stat="payment_pending" label="Payment Belum Lunas" :value="number_format($stats['payment_pending'])" asset="assets/receipt.webp" color="rose" />
+                <x-stat-card stat="payment_today_total" label="Pembayaran Hari Ini" :value="'Rp '.number_format($stats['payment_today_total'], 0, ',', '.')" asset="assets/wallet.webp" color="emerald" />
             </div>
 
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">

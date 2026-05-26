@@ -88,6 +88,108 @@
         background-size: 48px 48px;
     }
 
+    @keyframes vault-float {
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-14px);
+        }
+    }
+
+    @keyframes vault-float-delayed {
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    @keyframes vault-float-slow {
+        0%,
+        100% {
+            transform: translateY(0) rotate(0deg);
+        }
+
+        50% {
+            transform: translateY(-8px) rotate(4deg);
+        }
+    }
+
+    .vault-hero-visual {
+        @apply relative mx-auto w-full max-w-[36rem] lg:max-w-none;
+        height: min(24rem, 72vw);
+        overflow: visible;
+    }
+
+    @media (min-width: 1024px) {
+        .vault-hero-visual {
+            height: 30rem;
+        }
+    }
+
+    .vault-hero-glow {
+        @apply pointer-events-none absolute rounded-full;
+        top: 48%;
+        left: 50%;
+        width: min(95%, 26rem);
+        height: min(95%, 26rem);
+        transform: translate(-50%, -50%);
+        background: radial-gradient(circle, rgba(255, 102, 38, 0.4) 0%, rgba(255, 102, 38, 0.14) 45%, transparent 74%);
+        filter: blur(58px);
+    }
+
+    .vault-hero-glow-secondary {
+        @apply pointer-events-none absolute rounded-full;
+        top: 52%;
+        left: 52%;
+        width: 14rem;
+        height: 14rem;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 102, 38, 0.24);
+        filter: blur(40px);
+    }
+
+    .vault-hero-main {
+        @apply absolute z-20 max-w-none object-contain drop-shadow-2xl;
+        top: 50%;
+        left: 50%;
+        width: min(82vw, 22rem);
+        transform: translate(-50%, -50%);
+        animation: vault-float 6s ease-in-out infinite;
+    }
+
+    @media (min-width: 640px) {
+        .vault-hero-main {
+            width: min(78vw, 26rem);
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .vault-hero-main {
+            width: min(100%, 28rem);
+        }
+    }
+
+    .vault-hero-live-card {
+        @apply absolute z-40 w-44 rounded-2xl border border-white/40 bg-white/80 p-4 shadow-xl shadow-black/10 backdrop-blur-md sm:w-48;
+        bottom: 8%;
+        right: 4%;
+        animation: vault-float-slow 8s ease-in-out infinite 2s;
+    }
+
+    @media (min-width: 1024px) {
+        .vault-hero-live-card {
+            bottom: 12%;
+            right: 6%;
+        }
+    }
+
     .vault-dashboard main .bg-white {
         background-color: #FFF9F1;
     }
@@ -545,5 +647,9 @@
             width: 2px;
             height: calc(100% - 1rem);
         }
+    }
+
+    .vault-service-icon {
+        filter: drop-shadow(0 10px 18px rgba(24, 21, 18, 0.08));
     }
 }

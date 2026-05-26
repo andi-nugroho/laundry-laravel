@@ -14,12 +14,14 @@
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8" x-data="dashboardRealtime()" x-init="init()">
+            <x-dashboard-realtime-bar />
+
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <x-stat-card label="Total Booking Saya" :value="number_format($stats['total_bookings'])" color="indigo" />
-                <x-stat-card label="Booking Aktif" :value="number_format($stats['active_bookings'])" color="amber" />
-                <x-stat-card label="Booking Selesai" :value="number_format($stats['done_bookings'])" color="emerald" />
-                <x-stat-card label="Pembayaran Paid" :value="'Rp '.number_format($stats['paid_payments_total'], 0, ',', '.')" color="sky" />
+                <x-stat-card stat="total_bookings" label="Total Booking Saya" :value="number_format($stats['total_bookings'])" asset="assets/calendar.webp" color="indigo" />
+                <x-stat-card stat="active_bookings" label="Booking Aktif" :value="number_format($stats['active_bookings'])" asset="assets/washing-machine.webp" color="amber" />
+                <x-stat-card stat="done_bookings" label="Booking Selesai" :value="number_format($stats['done_bookings'])" asset="assets/folded-clothes.webp" color="emerald" />
+                <x-stat-card stat="paid_payments_total" label="Pembayaran Paid" :value="'Rp '.number_format($stats['paid_payments_total'], 0, ',', '.')" asset="assets/wallet.webp" color="sky" />
             </div>
 
             <div class="bg-white shadow-sm sm:rounded-xl ring-1 ring-gray-100 overflow-hidden">

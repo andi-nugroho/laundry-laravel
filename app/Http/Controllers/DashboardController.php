@@ -7,6 +7,8 @@ use App\Models\Customer;
 use App\Models\Payment;
 use App\Models\Service;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -25,29 +27,8 @@ class DashboardController extends Controller
      */
     public function admin(): View
     {
-        $processingStatuses = [
-            Booking::STATUS_DITERIMA,
-            Booking::STATUS_DICUCI,
-            Booking::STATUS_DIKERINGKAN,
-            Booking::STATUS_DISETRIKA,
-        ];
-
         return view('dashboard.admin', [
-            'stats' => [
-                'total_customers' => Customer::count(),
-                'total_services_active' => Service::where('is_active', true)->count(),
-                'total_bookings' => Booking::count(),
-                'total_bookings_today' => Booking::whereDate('booking_date', today())->count(),
-                'booking_masuk' => Booking::where('status', Booking::STATUS_BOOKING_MASUK)->count(),
-                'laundry_processing' => Booking::whereIn('status', $processingStatuses)->count(),
-                'laundry_done' => Booking::where('status', Booking::STATUS_SELESAI)->count(),
-                'total_payments' => Payment::count(),
-                'total_revenue_paid' => Payment::where('payment_status', Payment::STATUS_PAID)->sum('total_bill'),
-                'total_receivables' => Payment::whereIn('payment_status', [
-                    Payment::STATUS_UNPAID,
-                    Payment::STATUS_PARTIAL,
-                ])->selectRaw('COALESCE(SUM(total_bill - amount_paid), 0) as total')->value('total'),
-            ],
+            'stats' => $this->adminStats(),
             'recentBookings' => Booking::query()
                 ->with(['customer', 'service'])
                 ->latest('booking_date')
@@ -68,26 +49,11 @@ class DashboardController extends Controller
      */
     public function kasir(): View
     {
-        $processingStatuses = [
-            Booking::STATUS_DITERIMA,
-            Booking::STATUS_DICUCI,
-            Booking::STATUS_DIKERINGKAN,
-            Booking::STATUS_DISETRIKA,
-        ];
-
         return view('dashboard.kasir', [
-            'stats' => [
-                'booking_today' => Booking::whereDate('booking_date', today())->count(),
-                'laundry_processing' => Booking::whereIn('status', $processingStatuses)->count(),
-                'payment_pending' => Payment::whereIn('payment_status', [
-                    Payment::STATUS_UNPAID,
-                    Payment::STATUS_PARTIAL,
-                ])->count(),
-                'payment_today_total' => Payment::whereDate('payment_date', today())->sum('amount_paid'),
-            ],
+            'stats' => $this->kasirStats(),
             'processBookings' => Booking::query()
                 ->with(['customer', 'service'])
-                ->whereIn('status', array_merge([Booking::STATUS_BOOKING_MASUK], $processingStatuses))
+                ->whereIn('status', array_merge([Booking::STATUS_BOOKING_MASUK], $this->processingStatuses()))
                 ->latest('booking_date')
                 ->latest('id')
                 ->limit(5)
@@ -111,27 +77,9 @@ class DashboardController extends Controller
     public function user(): View
     {
         $user = Auth::user();
-        $activeStatuses = [
-            Booking::STATUS_BOOKING_MASUK,
-            Booking::STATUS_DITERIMA,
-            Booking::STATUS_DICUCI,
-            Booking::STATUS_DIKERINGKAN,
-            Booking::STATUS_DISETRIKA,
-        ];
 
         return view('dashboard.user', [
-            'stats' => [
-                'total_bookings' => Booking::where('user_id', $user->id)->count(),
-                'active_bookings' => Booking::where('user_id', $user->id)
-                    ->whereIn('status', $activeStatuses)
-                    ->count(),
-                'done_bookings' => Booking::where('user_id', $user->id)
-                    ->where('status', Booking::STATUS_SELESAI)
-                    ->count(),
-                'paid_payments_total' => Payment::whereHas('booking', fn ($query) => $query->where('user_id', $user->id))
-                    ->where('payment_status', Payment::STATUS_PAID)
-                    ->sum('total_bill'),
-            ],
+            'stats' => $this->userStats($user->id),
             'recentBookings' => Booking::query()
                 ->with(['service', 'payment'])
                 ->where('user_id', $user->id)
@@ -140,5 +88,123 @@ class DashboardController extends Controller
                 ->limit(5)
                 ->get(),
         ]);
+    }
+
+    public function stats(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $stats = match ($user->role) {
+            \App\Models\User::ROLE_ADMIN => $this->adminStats(),
+            \App\Models\User::ROLE_KASIR => $this->kasirStats(),
+            default => $this->userStats($user->id),
+        };
+
+        return response()
+            ->json([
+                'role' => $user->role,
+                'updated_at' => now()->format('H:i:s'),
+                'stats' => collect($stats)
+                    ->map(fn ($value, $key) => [
+                        'raw' => $value,
+                        'formatted' => $this->formatStatValue((string) $key, $value),
+                    ])
+                    ->all(),
+            ])
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate');
+    }
+
+    /**
+     * @return array<string, int|float|string|null>
+     */
+    private function adminStats(): array
+    {
+        return [
+            'total_customers' => Customer::query()->count(),
+            'total_services_active' => Service::query()->where('is_active', true)->count(),
+            'total_bookings' => Booking::query()->count(),
+            'total_bookings_today' => Booking::query()->whereDate('booking_date', today())->count(),
+            'booking_masuk' => Booking::query()->where('status', Booking::STATUS_BOOKING_MASUK)->count(),
+            'laundry_processing' => Booking::query()->whereIn('status', $this->processingStatuses())->count(),
+            'laundry_done' => Booking::query()->where('status', Booking::STATUS_SELESAI)->count(),
+            'total_payments' => Payment::query()->count(),
+            'total_revenue_paid' => (float) Payment::query()->where('payment_status', Payment::STATUS_PAID)->sum('total_bill'),
+            'total_receivables' => (float) Payment::query()->whereIn('payment_status', [
+                Payment::STATUS_UNPAID,
+                Payment::STATUS_PARTIAL,
+            ])->selectRaw('COALESCE(SUM(total_bill - amount_paid), 0) as total')->value('total'),
+        ];
+    }
+
+    /**
+     * @return array<string, int|float|string|null>
+     */
+    private function kasirStats(): array
+    {
+        return [
+            'booking_today' => Booking::query()->whereDate('booking_date', today())->count(),
+            'laundry_processing' => Booking::query()->whereIn('status', $this->processingStatuses())->count(),
+            'payment_pending' => Payment::query()->whereIn('payment_status', [
+                Payment::STATUS_UNPAID,
+                Payment::STATUS_PARTIAL,
+            ])->count(),
+            'payment_today_total' => (float) Payment::query()->whereDate('payment_date', today())->sum('amount_paid'),
+        ];
+    }
+
+    /**
+     * @return array<string, int|float|string|null>
+     */
+    private function userStats(int $userId): array
+    {
+        return [
+            'total_bookings' => Booking::query()->where('user_id', $userId)->count(),
+            'active_bookings' => Booking::query()->where('user_id', $userId)
+                ->whereIn('status', $this->activeUserStatuses())
+                ->count(),
+            'done_bookings' => Booking::query()->where('user_id', $userId)
+                ->where('status', Booking::STATUS_SELESAI)
+                ->count(),
+            'paid_payments_total' => (float) Payment::query()->whereHas('booking', fn ($query) => $query->where('user_id', $userId))
+                ->where('payment_status', Payment::STATUS_PAID)
+                ->sum('total_bill'),
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function processingStatuses(): array
+    {
+        return [
+            Booking::STATUS_DITERIMA,
+            Booking::STATUS_DICUCI,
+            Booking::STATUS_DIKERINGKAN,
+            Booking::STATUS_DISETRIKA,
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function activeUserStatuses(): array
+    {
+        return array_merge([Booking::STATUS_BOOKING_MASUK], $this->processingStatuses());
+    }
+
+    private function formatStatValue(string $key, mixed $value): string
+    {
+        $currencyKeys = [
+            'total_revenue_paid',
+            'total_receivables',
+            'payment_today_total',
+            'paid_payments_total',
+        ];
+
+        if (in_array($key, $currencyKeys, true)) {
+            return 'Rp '.number_format((float) $value, 0, ',', '.');
+        }
+
+        return number_format((float) $value, 0, ',', '.');
     }
 }
