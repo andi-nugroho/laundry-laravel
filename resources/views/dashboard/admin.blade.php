@@ -34,7 +34,7 @@
                         <h3 class="text-base font-semibold text-gray-900">5 Booking Terbaru</h3>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full vault-dashboard-table divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kode</th>
@@ -66,7 +66,7 @@
                         <h3 class="text-base font-semibold text-gray-900">5 Payment Terbaru</h3>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full vault-dashboard-table divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kode</th>
@@ -80,7 +80,7 @@
                                     <tr>
                                         <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $payment->payment_code }}</td>
                                         <td class="px-6 py-4 text-sm text-gray-600">{{ $payment->booking?->booking_code ?? '-' }}</td>
-                                        <td class="px-6 py-4 text-sm text-gray-900">Rp {{ number_format($payment->total_bill, 0, ',', '.') }}</td>
+                                        <td class="px-6 py-4 text-sm vault-nowrap text-gray-900">Rp {{ number_format($payment->total_bill, 0, ',', '.') }}</td>
                                         <td class="px-6 py-4 text-sm text-gray-600">{{ ucfirst($payment->payment_status) }}</td>
                                     </tr>
                                 @empty

@@ -24,6 +24,12 @@
                         <x-primary-button type="button">{{ $booking->payment ? 'Bayar' : 'Input Pembayaran' }}</x-primary-button>
                     </a>
                 @endif
+
+                @if (Auth::user()->isUser() && $booking->payment && in_array($booking->payment->payment_status, [\App\Models\Payment::STATUS_UNPAID, \App\Models\Payment::STATUS_PARTIAL]))
+                    <a href="{{ route('payments.pay', $booking->payment) }}">
+                        <x-primary-button type="button" class="!bg-[#FF6626] hover:!bg-[#e55c22] focus:!ring-[#FF6626]">Bayar Sekarang</x-primary-button>
+                    </a>
+                @endif
             </div>
         </div>
     </x-slot>
@@ -88,9 +94,14 @@
                                     {{ $booking->payment->payment_code }}
                                 </a>
                                 <span class="text-gray-500">({{ ucfirst($booking->payment->payment_status) }})</span>
-                                <a href="{{ route('payments.invoice', $booking->payment) }}" class="ms-2 text-emerald-600 hover:text-emerald-900">
-                                    Cetak Nota
+                                <a href="{{ route('payments.invoice', $booking->payment) }}" class="ms-2 inline-flex rounded-xl border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-black text-emerald-700 transition hover:bg-emerald-100">
+                                    Download PDF
                                 </a>
+                                @if (Auth::user()->isUser() && in_array($booking->payment->payment_status, [\App\Models\Payment::STATUS_UNPAID, \App\Models\Payment::STATUS_PARTIAL]))
+                                    <a href="{{ route('payments.pay', $booking->payment) }}" class="ms-2 inline-flex rounded-xl border border-orange-200 bg-orange-50 px-2.5 py-1 text-xs font-black text-orange-700 transition hover:bg-orange-100">
+                                        Bayar Sekarang
+                                    </a>
+                                @endif
                             @else
                                 Belum ada pembayaran
                             @endif

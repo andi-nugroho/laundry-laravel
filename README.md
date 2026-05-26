@@ -1,79 +1,115 @@
-# Laundry Laravel
+<div align="center">
+  <img src="public/logo.svg" alt="VAULTLAUNDRY Logo" width="86" height="86" />
 
-Aplikasi manajemen laundry berbasis Laravel 12, Breeze, TailwindCSS, dan PostgreSQL. Project ini dibuat bertahap untuk mengelola layanan laundry, data pelanggan, booking laundry, dan monitoring status proses laundry.
+# VAULTLAUNDRY
 
-## Fitur Utama
+Modern laundry operation system built with Laravel, Breeze, TailwindCSS, PostgreSQL, and a warm orange premium interface.
+<br />
+Mengelola layanan laundry, pelanggan, booking, monitoring status, pembayaran, invoice PDF, dashboard statistik, dan laporan pendapatan dalam satu aplikasi role-based.
 
-- Autentikasi Laravel Breeze.
-- Role pengguna: `admin`, `kasir`, dan `user`.
-- Dashboard terpisah untuk setiap role.
+</div>
+
+## Why VAULTLAUNDRY
+
+- **Premium Laundry Dashboard**: Cream/off-white interface dengan aksen orange `#FF6626`, sidebar collapsible, card/table toggle, dan page loading bar.
+- **Role-Based Workflow**: Admin, kasir, dan user memiliki dashboard, menu, dan batas akses yang berbeda.
+- **Core Laundry Operations**: Booking laundry, monitoring status cucian, customer profile, dan transaksi pembayaran terhubung dalam satu alur.
+- **Receipt-Ready PDF Invoice**: Nota pembayaran compact bergaya struk retail dengan logo VAULTLAUNDRY.
+- **Real Data Reports**: Dashboard statistik, laporan transaksi, dan laporan pendapatan memakai data database asli.
+
+## Tech Stack
+
+- **Framework**: Laravel 12
+- **Auth**: Laravel Breeze
+- **Styling**: TailwindCSS + Blade Components + Alpine.js
+- **Database**: PostgreSQL
+- **PDF**: barryvdh/laravel-dompdf
+- **Runtime**: Laravel Sail / Docker Compose
+
+## Core Features
+
+- Autentikasi, email verification, profile.
+- Role pengguna: `admin`, `kasir`, `user`.
+- Dashboard real-data untuk admin, kasir, dan user.
 - CRUD layanan laundry untuk admin.
-- CRUD customer dengan akses berbasis role.
-- Booking laundry dengan kode otomatis format `LDY-YYYY-0001`.
-- Perhitungan otomatis estimasi selesai dan total harga booking.
-- Monitoring status laundry dengan badge dan timeline progress.
+- CRUD customer dengan authorization per role.
+- Booking laundry dengan kode otomatis `LDY-YYYY-0001`.
+- Perhitungan estimasi selesai dan total harga dari berat x harga layanan.
+- Monitoring status laundry dengan timeline.
+- Menu user aktif:
+  - `/user/status-cucian`
+  - `/user/riwayat`
+- Transaksi pembayaran dengan kode otomatis `PAY-YYYY-0001`.
+- Invoice PDF compact receipt.
+- Laporan transaksi dan pendapatan.
 
-## Role dan Akses
+## Role Access
 
 Admin:
-- Mengakses dashboard admin.
-- Mengelola layanan laundry.
-- Mengelola semua customer.
-- Mengelola semua booking.
-- Mengubah status semua booking.
+- Mengelola layanan, customer, booking, monitoring, payment, invoice, dan semua laporan.
 
 Kasir:
-- Mengakses dashboard kasir.
-- Mengelola semua customer.
-- Mengelola semua booking.
-- Mengubah status semua booking.
+- Mengelola customer, booking, monitoring, payment, invoice, dan laporan transaksi.
 
 User:
-- Mengakses dashboard pelanggan.
-- Melihat dan mengubah data customer miliknya sendiri.
 - Membuat booking untuk dirinya sendiri.
-- Melihat booking dan status miliknya sendiri.
+- Melihat booking, status cucian, riwayat booking, payment, dan invoice miliknya.
 - Mengubah booking miliknya selama status masih `booking_masuk`.
-- Tidak bisa menghapus booking atau mengubah status.
+- Tidak dapat mengubah status cucian, menghapus booking, atau mengelola payment.
 
 ## Status Laundry
 
-Status booking yang digunakan:
+```text
+booking_masuk
+diterima
+dicuci
+dikeringkan
+disetrika
+selesai
+diambil
+dibatalkan
+```
 
-- `booking_masuk`
-- `diterima`
-- `dicuci`
-- `dikeringkan`
-- `disetrika`
-- `selesai`
-- `diambil`
-- `dibatalkan`
-
-Admin dan kasir dapat mengubah status melalui halaman booking, detail booking, edit booking, atau route:
+Admin dan kasir dapat mengubah status melalui UI atau endpoint:
 
 ```bash
 PATCH /bookings/{booking}/status
 ```
 
-## Struktur Data Inti
+## Local Development
 
-Services:
-- Data layanan laundry.
-- Harga per kg dan estimasi hari digunakan untuk menghitung booking.
+### Start containers
 
-Customers:
-- Data pelanggan.
-- Bisa terhubung ke akun user melalui `user_id`.
+```bash
+docker compose up -d
+```
 
-Bookings:
-- Terhubung ke `users`, `customers`, dan `services`.
-- `booking_code` dibuat otomatis.
-- `estimated_finish_date` dihitung dari `booking_date + estimated_days service`.
-- `total_price` dihitung dari `weight x service.price_per_kg`.
+### Install dependencies
 
-## Akun Seeder
+```bash
+composer install
+npm install
+```
 
-Seeder membuat akun contoh:
+### Migrate and seed
+
+```bash
+docker compose exec laravel.test php artisan migrate --seed
+```
+
+### Build frontend
+
+```bash
+npm run build
+```
+
+Open:
+
+```text
+http://localhost
+```
+
+## Seeder Accounts
 
 ```text
 Admin : admin@laundry.test / password
@@ -81,71 +117,43 @@ Kasir : kasir@laundry.test / password
 User  : user@laundry.test / password
 ```
 
-Seeder juga membuat contoh layanan, pelanggan, dan booking laundry.
-
-## Menjalankan Project
-
-Project ini menggunakan Laravel Sail dan PostgreSQL.
+## Useful Commands
 
 ```bash
-docker compose up -d
-docker compose exec laravel.test php artisan migrate --seed
-docker compose exec laravel.test npm run build
-```
-
-Buka aplikasi:
-
-```text
-http://localhost
-```
-
-## Command Berguna
-
-Menjalankan migration dan seeder:
-
-```bash
-docker compose exec laravel.test php artisan migrate --seed
-```
-
-Melihat route booking:
-
-```bash
-docker compose exec laravel.test php artisan route:list --path=bookings
-```
-
-Menjalankan test:
-
-```bash
+docker compose exec laravel.test php artisan route:list
 docker compose exec laravel.test php artisan test
-```
-
-Merapikan format kode:
-
-```bash
 docker compose exec laravel.test ./vendor/bin/pint
 ```
 
-## Modul yang Sudah Dibangun
+## Main Routes
 
-Auth dan dashboard:
-- Login, register, logout, profile.
-- Redirect dashboard berdasarkan role.
+- `/` landing page
+- `/dashboard` role redirect
+- `/admin/dashboard`
+- `/kasir/dashboard`
+- `/user/dashboard`
+- `/services`
+- `/customers`
+- `/bookings`
+- `/monitoring`
+- `/payments`
+- `/payments/{payment}/invoice`
+- `/reports/transactions`
+- `/reports/revenue`
+- `/user/status-cucian`
+- `/user/riwayat`
 
-Services:
-- CRUD layanan laundry.
-- Hanya admin yang bisa mengelola.
+## UI System
 
-Customers:
-- CRUD pelanggan.
-- Admin/kasir mengelola semua pelanggan.
-- User hanya melihat dan mengubah customer miliknya sendiri.
+- Brand: **VAULTLAUNDRY**
+- Primary: `#FF6626`
+- Background: `#FAF4EA`
+- Card: `#FFF9F1`
+- Border: `#E8DCCB`
+- Fonts: DM Sans / Instrument Sans / Instrument Serif / JetBrains Mono
+- Dashboard shell: fixed collapsible sidebar, sticky topbar, responsive mobile drawer.
+- Index pages: reusable premium panel with `Table` and `Card` modes.
 
-Bookings:
-- CRUD booking laundry.
-- Admin/kasir mengelola semua booking.
-- User mengelola booking miliknya sendiri dengan batasan status.
+## License
 
-Monitoring:
-- Update status booking untuk admin/kasir.
-- User hanya melihat status booking miliknya.
-- Timeline progress status pada detail booking.
+MIT © 2026 VAULTLAUNDRY.

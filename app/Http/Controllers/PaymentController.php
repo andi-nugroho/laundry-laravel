@@ -6,8 +6,10 @@ use App\Http\Requests\StorePaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
 use App\Models\Booking;
 use App\Models\Payment;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -47,7 +49,7 @@ class PaymentController extends Controller
         $data = $request->validated();
         $booking = Booking::findOrFail($data['booking_id']);
 
-        $data['payment_code'] = $this->generatePaymentCode($data['payment_date']);
+        $data['payment_code'] = Payment::generatePaymentCode($data['payment_date']);
         $data = $this->applyCalculatedFields($data, $booking);
         $data['processed_by'] = $request->user()->id;
 
@@ -67,13 +69,58 @@ class PaymentController extends Controller
         ]);
     }
 
-    public function invoice(Payment $payment): View
+    public function pay(Payment $payment): View
+    {
+        Gate::authorize('payPayment', $payment);
+
+        $payment->load(['booking.customer', 'booking.service']);
+        return view('payments.pay', [
+            'payment' => $payment,
+        ]);
+    }
+
+    public function confirm(Request $request, Payment $payment): RedirectResponse
+    {
+        Gate::authorize('confirmPayment', $payment);
+
+        $data = $request->validate([
+            'payment_method' => ['required', 'string', 'in:qris,transfer,ewallet'],
+        ]);
+
+        $paymentMethod = $data['payment_method'] === 'qris' ? Payment::METHOD_EWALLET : $data['payment_method'];
+        $notes = $data['payment_method'] === 'qris' ? 'Via: QRIS' : ($payment->notes ?? '');
+
+        $payment->update([
+            'payment_method' => $paymentMethod,
+            'amount_paid' => $payment->total_bill,
+            'change_amount' => 0,
+            'payment_status' => Payment::STATUS_PAID,
+            'payment_date' => now(),
+            'processed_by' => $request->user()->id,
+            'notes' => $notes,
+        ]);
+
+        return redirect()
+            ->route('payments.show', $payment)
+            ->with('success', 'Pembayaran berhasil dikonfirmasi.');
+    }
+
+    public function invoice(Payment $payment): Response
     {
         Gate::authorize('view', $payment);
 
-        return view('payments.invoice', [
-            'payment' => $payment->load(['booking.customer', 'booking.service', 'processedBy']),
-        ]);
+        $payment->load(['booking.customer', 'booking.service', 'processedBy']);
+        $logoPath = public_path('logo.svg');
+        $logoDataUri = file_exists($logoPath)
+            ? 'data:image/svg+xml;base64,'.base64_encode((string) file_get_contents($logoPath))
+            : null;
+
+        return Pdf::loadView('payments.invoice', [
+            'payment' => $payment,
+            'logoDataUri' => $logoDataUri,
+        ])
+            ->setPaper([0, 0, 226.77, 620], 'portrait')
+            ->download("nota-{$payment->payment_code}.pdf");
     }
 
     public function edit(Payment $payment): View
@@ -115,18 +162,7 @@ class PaymentController extends Controller
             ->with('success', 'Pembayaran berhasil dihapus.');
     }
 
-    private function generatePaymentCode(string $paymentDate): string
-    {
-        $year = Carbon::parse($paymentDate)->format('Y');
-        $lastCode = Payment::query()
-            ->where('payment_code', 'like', "PAY-{$year}-%")
-            ->orderByDesc('payment_code')
-            ->value('payment_code');
 
-        $nextNumber = $lastCode ? ((int) substr($lastCode, -4)) + 1 : 1;
-
-        return sprintf('PAY-%s-%04d', $year, $nextNumber);
-    }
 
     /**
      * @param  array<string, mixed>  $data

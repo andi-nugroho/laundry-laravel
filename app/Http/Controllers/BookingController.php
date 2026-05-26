@@ -34,6 +34,62 @@ class BookingController extends Controller
         ]);
     }
 
+    public function userStatus(Request $request): View
+    {
+        $bookings = Booking::query()
+            ->with(['customer', 'service', 'payment'])
+            ->where('user_id', $request->user()->id)
+            ->whereNotIn('status', [
+                Booking::STATUS_SELESAI,
+                Booking::STATUS_DIAMBIL,
+                Booking::STATUS_DIBATALKAN,
+            ])
+            ->latest('booking_date')
+            ->latest('id')
+            ->paginate(10);
+
+        return view('bookings.user-status', [
+            'bookings' => $bookings,
+        ]);
+    }
+
+    public function userHistory(Request $request): View
+    {
+        $bookings = Booking::query()
+            ->with(['customer', 'service', 'payment'])
+            ->where('user_id', $request->user()->id)
+            ->whereIn('status', [
+                Booking::STATUS_SELESAI,
+                Booking::STATUS_DIAMBIL,
+                Booking::STATUS_DIBATALKAN,
+            ])
+            ->latest('booking_date')
+            ->latest('id')
+            ->paginate(10);
+
+        return view('bookings.user-history', [
+            'bookings' => $bookings,
+        ]);
+    }
+
+    public function kasirHistory(Request $request): View
+    {
+        $bookings = Booking::query()
+            ->with(['customer', 'service', 'payment'])
+            ->whereIn('status', [
+                Booking::STATUS_SELESAI,
+                Booking::STATUS_DIAMBIL,
+                Booking::STATUS_DIBATALKAN,
+            ])
+            ->latest('booking_date')
+            ->latest('id')
+            ->paginate(15);
+
+        return view('bookings.kasir-history', [
+            'bookings' => $bookings,
+        ]);
+    }
+
     public function create(Request $request): View
     {
         Gate::authorize('create', Booking::class);
@@ -56,6 +112,24 @@ class BookingController extends Controller
         $data = $this->applyCalculatedFields($data, $service, $data['booking_date']);
 
         $booking = Booking::create($data);
+
+        if ($request->user()->isUser()) {
+            $paymentDate = now()->toDateTimeString();
+            $payment = \App\Models\Payment::create([
+                'booking_id' => $booking->id,
+                'payment_code' => \App\Models\Payment::generatePaymentCode($paymentDate),
+                'payment_date' => $paymentDate,
+                'payment_method' => \App\Models\Payment::METHOD_EWALLET, // default dummy
+                'amount_paid' => 0,
+                'total_bill' => $booking->total_price,
+                'change_amount' => 0,
+                'payment_status' => \App\Models\Payment::STATUS_UNPAID,
+            ]);
+
+            return redirect()
+                ->route('payments.pay', $payment)
+                ->with('success', 'Booking berhasil dibuat. Silakan lakukan pembayaran.');
+        }
 
         return redirect()
             ->route('bookings.show', $booking)
@@ -190,6 +264,6 @@ class BookingController extends Controller
     {
         return Service::query()
             ->orderBy('name')
-            ->get(['id', 'name', 'price_per_kg', 'estimated_days']);
+            ->get(['id', 'name', 'price_per_kg', 'estimated_days', 'description', 'is_active']);
     }
 }

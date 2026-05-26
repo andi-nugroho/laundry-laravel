@@ -1,19 +1,19 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                <h2 class="text-xl font-black leading-tight text-neutral-900">
                     {{ __('Laporan Pendapatan') }}
                 </h2>
-                <p class="mt-1 text-sm text-gray-500">Ringkasan pendapatan dan piutang pembayaran laundry</p>
+                <p class="mt-1 text-sm font-medium text-neutral-500">Ringkasan pendapatan dan piutang pembayaran laundry</p>
             </div>
         </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="bg-white shadow-sm sm:rounded-lg p-4 sm:p-6">
-                <form method="GET" action="{{ route('reports.revenue') }}" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+    <div class="py-6">
+        <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
+            <div class="rounded-3xl border border-[#E8DCCB] bg-[#FFF9F1] p-4 shadow-[0_18px_45px_rgba(24,21,18,0.08)] sm:p-6">
+                <form method="GET" action="{{ route('reports.revenue') }}" class="grid grid-cols-1 gap-4 md:grid-cols-5">
                     <div>
                         <x-input-label for="start_date" value="Tanggal Awal" />
                         <x-text-input id="start_date" name="start_date" type="date" class="mt-1 block w-full" :value="$filters['start_date'] ?? ''" />
@@ -49,40 +49,58 @@
                 </form>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <x-stat-card label="Pendapatan Paid" :value="'Rp '.number_format($stats['total_revenue_paid'], 0, ',', '.')" color="emerald" />
                 <x-stat-card label="Piutang Unpaid/Partial" :value="'Rp '.number_format($stats['total_receivables'], 0, ',', '.')" color="rose" />
                 <x-stat-card label="Transaksi Paid" :value="number_format($stats['paid_count'])" color="indigo" />
                 <x-stat-card label="Transaksi Tertunda" :value="number_format($stats['pending_count'])" color="amber" />
             </div>
 
-            <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100">
-                    <h3 class="text-base font-semibold text-gray-900">Ringkasan Pendapatan per Metode</h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Metode</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Pendapatan Paid</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse ($revenueByMethod as $method => $total)
+            <x-list-panel storage-key="vaultReportsRevenueView" title="Pendapatan per Metode" description="Ringkasan nominal paid berdasarkan metode pembayaran.">
+                <x-slot name="table">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full vault-table-compact divide-y divide-gray-200">
+                            <thead class="sticky top-0 z-10 bg-gray-50">
                                 <tr>
-                                    <td class="px-6 py-4 text-sm text-gray-600 capitalize">{{ $method }}</td>
-                                    <td class="px-6 py-4 text-sm font-medium text-gray-900">Rp {{ number_format($total, 0, ',', '.') }}</td>
+                                    <th class="px-6 py-4 text-left">Metode</th>
+                                    <th class="px-6 py-4 text-left">Total Pendapatan Paid</th>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="2" class="px-6 py-12 text-center text-sm text-gray-500">Belum ada pendapatan paid sesuai filter.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                                @forelse ($revenueByMethod as $method => $total)
+                                    <tr>
+                                        <td class="px-3 py-3 text-sm font-bold capitalize text-neutral-700">{{ $method }}</td>
+                                        <td class="vault-nowrap px-3 py-3 text-sm font-black text-neutral-900">Rp {{ number_format($total, 0, ',', '.') }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="2" class="px-6 py-12 text-center text-sm font-medium text-neutral-500">Belum ada pendapatan paid sesuai filter.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </x-slot>
+
+                <x-slot name="cards">
+                    <div class="grid gap-4 p-4 sm:grid-cols-2 xl:grid-cols-3">
+                        @forelse ($revenueByMethod as $method => $total)
+                            <article class="vault-record-card">
+                                <div class="text-[0.68rem] font-black uppercase tracking-[0.12em] text-neutral-400">Metode</div>
+                                <h3 class="mt-1 text-base font-black capitalize text-neutral-950">{{ $method }}</h3>
+                                <div class="mt-5 rounded-2xl border border-[#E8DCCB] bg-[#FBF3E7] p-4">
+                                    <div class="text-[0.68rem] font-black uppercase tracking-[0.12em] text-neutral-400">Total Pendapatan Paid</div>
+                                    <div class="mt-1 text-2xl font-black text-neutral-950">Rp {{ number_format($total, 0, ',', '.') }}</div>
+                                </div>
+                            </article>
+                        @empty
+                            <div class="col-span-full rounded-3xl border border-dashed border-[#E8DCCB] p-8 text-center text-sm font-medium text-neutral-500">
+                                Belum ada pendapatan paid sesuai filter.
+                            </div>
+                        @endforelse
+                    </div>
+                </x-slot>
+            </x-list-panel>
         </div>
     </div>
 </x-app-layout>

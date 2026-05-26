@@ -20,7 +20,7 @@
                 @endcan
 
                 <a href="{{ route('payments.invoice', $payment) }}">
-                    <x-primary-button type="button">Cetak Nota</x-primary-button>
+                    <x-primary-button type="button">Download PDF</x-primary-button>
                 </a>
             </div>
         </div>

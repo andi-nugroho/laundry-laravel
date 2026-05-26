@@ -17,12 +17,12 @@
     $colorClass = $colors[$color] ?? $colors['indigo'];
 @endphp
 
-<div {{ $attributes->merge(['class' => 'bg-white overflow-hidden shadow-sm sm:rounded-xl ring-1 ring-gray-100']) }}>
+<div {{ $attributes->merge(['class' => 'overflow-hidden rounded-2xl border border-[#E8DCCB] bg-[#FFF9F1] shadow-[0_18px_45px_rgba(24,21,18,0.08)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_22px_55px_rgba(24,21,18,0.10)]']) }}>
     <div class="p-6">
         <div class="flex items-start justify-between gap-4">
             <div class="min-w-0 flex-1">
-                <p class="text-sm font-medium text-gray-500 truncate">{{ $label }}</p>
-                <p class="mt-2 text-2xl font-semibold tracking-tight text-gray-900">{{ $value }}</p>
+                <p class="truncate text-sm font-semibold text-neutral-500">{{ $label }}</p>
+                <p class="mt-2 text-2xl font-black tracking-tight text-neutral-950">{{ $value }}</p>
             </div>
             @if ($icon)
                 <div class="shrink-0 rounded-xl p-3 ring-1 {{ $colorClass }}">
@@ -31,7 +31,7 @@
             @endif
         </div>
         @isset($footer)
-            <div class="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-500">
+            <div class="mt-4 border-t border-[#E8DCCB] pt-4 text-xs font-medium text-neutral-500">
                 {{ $footer }}
             </div>
         @endisset
