@@ -51,39 +51,35 @@
 
             <x-list-panel storage-key="vaultReportsTransactionsView" title="Data Transaksi" description="Tabel untuk audit lengkap, card untuk review cepat per transaksi.">
                 <x-slot name="table">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                    <div class="max-w-full overflow-x-auto px-1 py-1">
+                        <table class="min-w-[740px] vault-table-compact divide-y divide-gray-200">
                             <thead class="sticky top-0 z-10 bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-4 text-left">Payment</th>
-                                    <th class="px-6 py-4 text-left">Booking</th>
-                                    <th class="px-6 py-4 text-left">Customer</th>
-                                    <th class="px-6 py-4 text-left">Service</th>
-                                    <th class="px-6 py-4 text-left">Tagihan</th>
-                                    <th class="px-6 py-4 text-left">Dibayar</th>
-                                    <th class="px-6 py-4 text-left">Kembalian</th>
-                                    <th class="px-6 py-4 text-left">Status</th>
-                                    <th class="px-6 py-4 text-left">Metode</th>
-                                    <th class="px-6 py-4 text-left">Tanggal</th>
+                                    <th class="px-3 py-3 text-left">Payment</th>
+                                    <th class="px-3 py-3 text-left">Booking</th>
+                                    <th class="px-3 py-3 text-left">Customer</th>
+                                    <th class="px-3 py-3 text-right">Tagihan</th>
+                                    <th class="px-3 py-3 text-left">Status</th>
+                                    <th class="px-3 py-3 text-left">Metode</th>
+                                    <th class="px-3 py-3 text-left">Tanggal</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 bg-white">
                                 @forelse ($payments as $payment)
                                     <tr>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-black text-neutral-900">{{ $payment->payment_code }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-600">{{ $payment->booking?->booking_code ?? '-' }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-600">{{ $payment->booking?->customer?->name ?? '-' }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-600">{{ $payment->booking?->service?->name ?? '-' }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-bold text-neutral-900">Rp {{ number_format($payment->total_bill, 0, ',', '.') }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-bold text-neutral-900">Rp {{ number_format($payment->amount_paid, 0, ',', '.') }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-bold text-neutral-900">Rp {{ number_format($payment->change_amount, 0, ',', '.') }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-600">{{ ucfirst($payment->payment_status) }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium capitalize text-neutral-600">{{ $payment->payment_method }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-600">{{ $payment->payment_date?->format('d M Y H:i') }}</td>
+                                        <td class="vault-nowrap px-3 py-3 text-sm font-black text-neutral-900">{{ $payment->payment_code }}</td>
+                                        <td class="vault-nowrap px-3 py-3 text-sm font-medium text-neutral-600">{{ $payment->booking?->booking_code ?? '-' }}</td>
+                                        <td class="px-3 py-3 text-sm font-medium text-neutral-600">
+                                            <div class="vault-truncate max-w-[130px]">{{ $payment->booking?->customer?->name ?? '-' }}</div>
+                                        </td>
+                                        <td class="vault-nowrap px-3 py-3 text-sm font-bold text-neutral-900 text-right">Rp {{ number_format($payment->total_bill, 0, ',', '.') }}</td>
+                                        <td class="vault-nowrap px-3 py-3 text-sm font-semibold text-neutral-600">{{ ucfirst($payment->payment_status) }}</td>
+                                        <td class="vault-nowrap px-3 py-3 text-sm font-medium capitalize text-neutral-600">{{ $payment->payment_method }}</td>
+                                        <td class="vault-nowrap px-3 py-3 text-sm font-medium text-neutral-600">{{ $payment->payment_date?->format('d M Y') }}</td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="10" class="px-6 py-12 text-center text-sm font-medium text-neutral-500">Tidak ada transaksi sesuai filter.</td>
+                                        <td colspan="7" class="px-6 py-12 text-center text-sm font-medium text-neutral-500">Tidak ada transaksi sesuai filter.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -92,15 +88,15 @@
                 </x-slot>
 
                 <x-slot name="cards">
-                    <div class="grid gap-4 p-4 xl:grid-cols-2">
+                    <div class="vault-card-list">
                         @forelse ($payments as $payment)
                             <article class="vault-record-card">
                                 <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                                    <div>
+                                    <div class="min-w-0">
                                         <h3 class="text-base font-black text-neutral-950">{{ $payment->payment_code }}</h3>
-                                        <p class="mt-1 text-sm font-medium text-neutral-500">{{ $payment->booking?->booking_code ?? '-' }} - {{ $payment->booking?->customer?->name ?? '-' }}</p>
+                                        <p class="mt-1 text-sm font-medium text-neutral-500 truncate">{{ $payment->booking?->booking_code ?? '-' }} — {{ $payment->booking?->customer?->name ?? '-' }}</p>
                                     </div>
-                                    <span class="rounded-full bg-[#FBF3E7] px-2.5 py-1 text-xs font-black capitalize text-neutral-700">{{ $payment->payment_status }}</span>
+                                    <span class="shrink-0 rounded-full bg-[#FBF3E7] px-2.5 py-1 text-xs font-black capitalize text-neutral-700">{{ $payment->payment_status }}</span>
                                 </div>
 
                                 <div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -113,7 +109,7 @@
                                 </div>
                             </article>
                         @empty
-                            <div class="rounded-3xl border border-dashed border-[#E8DCCB] p-8 text-center text-sm font-medium text-neutral-500 xl:col-span-2">
+                            <div class="col-span-full rounded-3xl border border-dashed border-[#E8DCCB] p-8 text-center text-sm font-medium text-neutral-500">
                                 Tidak ada transaksi sesuai filter.
                             </div>
                         @endforelse

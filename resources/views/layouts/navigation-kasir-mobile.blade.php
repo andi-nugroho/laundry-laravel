@@ -13,8 +13,8 @@
 <x-responsive-nav-link :href="route('payments.index')" :active="request()->routeIs('payments.*')">
     {{ __('Transaksi Pembayaran') }}
 </x-responsive-nav-link>
-<x-responsive-nav-link href="#" :active="false">
-    Riwayat <span class="text-xs text-gray-400">(segera)</span>
+<x-responsive-nav-link :href="route('kasir.riwayat')" :active="request()->routeIs('kasir.riwayat')">
+    {{ __('Riwayat') }}
 </x-responsive-nav-link>
 <x-responsive-nav-link :href="route('reports.transactions')" :active="request()->routeIs('reports.transactions')">
     {{ __('Laporan Transaksi') }}

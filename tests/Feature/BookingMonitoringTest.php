@@ -85,6 +85,6 @@ class BookingMonitoringTest extends TestCase
             ->get(route('bookings.show', $booking))
             ->assertOk()
             ->assertSee('Dicuci')
-            ->assertSee('Monitoring Status');
+            ->assertSee('Tracking Status');
     }
 }

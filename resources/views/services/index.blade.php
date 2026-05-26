@@ -26,7 +26,7 @@
             <x-list-panel storage-key="vaultServicesView" title="Daftar Layanan" description="Pilih mode table untuk scan cepat atau card untuk tampilan vertikal.">
                 <x-slot name="table">
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full vault-table-compact divide-y divide-gray-200">
                             <thead class="sticky top-0 z-10 bg-gray-50">
                                 <tr>
                                     <th scope="col" class="px-6 py-4 text-left">Nama</th>
@@ -59,7 +59,7 @@
                                             @endif
                                         </td>
                                         <td class="whitespace-nowrap px-6 py-4">
-                                            <div class="flex items-center justify-end gap-2">
+                                            <div class="vault-action-group justify-end">
                                                 <a href="{{ route('services.edit', $service) }}" class="vault-action-primary">Edit</a>
                                                 <form action="{{ route('services.destroy', $service) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus layanan ini?');">
                                                     @csrf
@@ -102,7 +102,7 @@
                                     <x-card-field label="Estimasi" :value="$service->estimated_days.' hari'" />
                                 </div>
 
-                                <div class="mt-5 flex flex-wrap gap-2">
+                                <div class="mt-5 vault-action-group">
                                     <a href="{{ route('services.edit', $service) }}" class="vault-action-primary">Edit</a>
                                     <form action="{{ route('services.destroy', $service) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus layanan ini?');">
                                         @csrf
@@ -112,7 +112,7 @@
                                 </div>
                             </article>
                         @empty
-                            <div class="rounded-3xl border border-dashed border-[#E8DCCB] p-8 text-center text-sm font-medium text-neutral-500 sm:col-span-2 xl:col-span-3">
+                            <div class="col-span-full rounded-3xl border border-dashed border-[#E8DCCB] p-8 text-center text-sm font-medium text-neutral-500">
                                 Belum ada layanan. <a href="{{ route('services.create') }}" class="font-black text-[#FF6626] hover:underline">Tambah layanan pertama</a>
                             </div>
                         @endforelse

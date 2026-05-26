@@ -59,7 +59,7 @@
             <x-list-panel storage-key="vaultReportsRevenueView" title="Pendapatan per Metode" description="Ringkasan nominal paid berdasarkan metode pembayaran.">
                 <x-slot name="table">
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full vault-table-compact divide-y divide-gray-200">
                             <thead class="sticky top-0 z-10 bg-gray-50">
                                 <tr>
                                     <th class="px-6 py-4 text-left">Metode</th>
@@ -69,8 +69,8 @@
                             <tbody class="divide-y divide-gray-200 bg-white">
                                 @forelse ($revenueByMethod as $method => $total)
                                     <tr>
-                                        <td class="px-6 py-4 text-sm font-bold capitalize text-neutral-700">{{ $method }}</td>
-                                        <td class="px-6 py-4 text-sm font-black text-neutral-900">Rp {{ number_format($total, 0, ',', '.') }}</td>
+                                        <td class="px-3 py-3 text-sm font-bold capitalize text-neutral-700">{{ $method }}</td>
+                                        <td class="vault-nowrap px-3 py-3 text-sm font-black text-neutral-900">Rp {{ number_format($total, 0, ',', '.') }}</td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -94,7 +94,7 @@
                                 </div>
                             </article>
                         @empty
-                            <div class="rounded-3xl border border-dashed border-[#E8DCCB] p-8 text-center text-sm font-medium text-neutral-500 sm:col-span-2 xl:col-span-3">
+                            <div class="col-span-full rounded-3xl border border-dashed border-[#E8DCCB] p-8 text-center text-sm font-medium text-neutral-500">
                                 Belum ada pendapatan paid sesuai filter.
                             </div>
                         @endforelse

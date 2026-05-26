@@ -27,7 +27,7 @@
                     <h3 class="text-base font-semibold text-gray-900">5 Booking Terbaru Saya</h3>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
+                    <table class="min-w-full vault-dashboard-table divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kode</th>

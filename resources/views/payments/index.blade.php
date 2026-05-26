@@ -31,45 +31,41 @@
             <x-list-panel storage-key="vaultPaymentsView" title="Daftar Pembayaran" description="Cek transaksi dalam mode table atau invoice-like card.">
                 <x-slot name="table">
                     <div class="max-w-full overflow-x-auto px-1 py-1">
-                        <table class="min-w-[1580px] divide-y divide-gray-200">
+                        <table class="min-w-[780px] vault-table-compact divide-y divide-gray-200">
                             <thead class="sticky top-0 z-10 bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-4 text-left">Kode</th>
-                                    <th scope="col" class="px-6 py-4 text-left">Booking</th>
-                                    <th scope="col" class="px-6 py-4 text-left">Pelanggan</th>
-                                    <th scope="col" class="px-6 py-4 text-left">Layanan</th>
-                                    <th scope="col" class="px-6 py-4 text-left">Tagihan</th>
-                                    <th scope="col" class="px-6 py-4 text-left">Dibayar</th>
-                                    <th scope="col" class="px-6 py-4 text-left">Kembalian</th>
-                                    <th scope="col" class="px-6 py-4 text-left">Metode</th>
-                                    <th scope="col" class="px-6 py-4 text-left">Status</th>
-                                    <th scope="col" class="px-6 py-4 text-left">Petugas</th>
-                                    <th scope="col" class="px-6 py-4 text-left">Tanggal</th>
-                                    <th scope="col" class="px-6 py-4 text-right">Aksi</th>
+                                    <th scope="col" class="px-3 py-3 text-left">Kode</th>
+                                    <th scope="col" class="px-3 py-3 text-left">Booking</th>
+                                    <th scope="col" class="px-3 py-3 text-left">Pelanggan</th>
+                                    <th scope="col" class="px-3 py-3 text-right">Tagihan</th>
+                                    <th scope="col" class="px-3 py-3 text-left">Status</th>
+                                    <th scope="col" class="px-3 py-3 text-left">Metode</th>
+                                    <th scope="col" class="px-3 py-3 text-right">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 bg-white">
                                 @forelse ($payments as $payment)
                                     <tr>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-black text-neutral-900">{{ $payment->payment_code }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-600">{{ $payment->booking?->booking_code ?? '-' }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-600">{{ $payment->booking?->customer?->name ?? '-' }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-600">{{ $payment->booking?->service?->name ?? '-' }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-bold text-neutral-900">Rp {{ number_format($payment->total_bill, 0, ',', '.') }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-bold text-neutral-900">Rp {{ number_format($payment->amount_paid, 0, ',', '.') }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-bold text-neutral-900">Rp {{ number_format($payment->change_amount, 0, ',', '.') }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium capitalize text-neutral-600">{{ $payment->payment_method }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4">
+                                        <td class="vault-nowrap px-3 py-3 text-sm font-black text-neutral-900">{{ $payment->payment_code }}</td>
+                                        <td class="vault-nowrap px-3 py-3 text-sm font-medium text-neutral-600">{{ $payment->booking?->booking_code ?? '-' }}</td>
+                                        <td class="px-3 py-3 text-sm font-medium text-neutral-600">
+                                            <div class="vault-truncate max-w-[140px]">{{ $payment->booking?->customer?->name ?? '-' }}</div>
+                                        </td>
+                                        <td class="vault-nowrap px-3 py-3 text-sm font-bold text-neutral-900 text-right">Rp {{ number_format($payment->total_bill, 0, ',', '.') }}</td>
+                                        <td class="vault-nowrap px-3 py-3">
                                             @include('payments._status-badge', ['status' => $payment->payment_status])
                                         </td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-600">{{ $payment->processedBy?->name ?? '-' }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-600">{{ $payment->payment_date?->format('d M Y H:i') }}</td>
-                                        <td class="min-w-72 px-6 py-4">
-                                            <div class="flex flex-wrap items-center justify-end gap-2">
+                                        <td class="vault-nowrap px-3 py-3 text-sm font-medium capitalize text-neutral-600">{{ $payment->payment_method }}</td>
+                                        <td class="px-3 py-3">
+                                            <div class="vault-action-group justify-end">
                                                 @can('view', $payment)
                                                     <a href="{{ route('payments.show', $payment) }}" class="vault-action-secondary">Detail</a>
-                                                    <a href="{{ route('payments.invoice', $payment) }}" class="vault-action-success">Download PDF</a>
+                                                    <a href="{{ route('payments.invoice', $payment) }}" class="vault-action-success">PDF</a>
                                                 @endcan
+
+                                                @if (Auth::user()->isUser() && in_array($payment->payment_status, [\App\Models\Payment::STATUS_UNPAID, \App\Models\Payment::STATUS_PARTIAL]))
+                                                    <a href="{{ route('payments.pay', $payment) }}" class="vault-action-primary !bg-[#FF6626] hover:!bg-[#e55c22] !border-transparent">Bayar</a>
+                                                @endif
 
                                                 @can('update', $payment)
                                                     <a href="{{ route('payments.edit', $payment) }}" class="vault-action-primary">Edit</a>
@@ -87,7 +83,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="12" class="px-6 py-12 text-center text-sm font-medium text-neutral-500">
+                                        <td colspan="7" class="px-6 py-12 text-center text-sm font-medium text-neutral-500">
                                             Belum ada transaksi pembayaran.
                                             @can('create', \App\Models\Payment::class)
                                                 <a href="{{ route('payments.create') }}" class="font-black text-[#FF6626] hover:underline">Input pembayaran pertama</a>
@@ -101,13 +97,13 @@
                 </x-slot>
 
                 <x-slot name="cards">
-                    <div class="grid gap-4 p-4 xl:grid-cols-2">
+                    <div class="vault-card-list">
                         @forelse ($payments as $payment)
                             <article class="vault-record-card">
                                 <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                    <div>
+                                    <div class="min-w-0">
                                         <h3 class="text-base font-black text-neutral-950">{{ $payment->payment_code }}</h3>
-                                        <p class="mt-1 text-sm font-medium text-neutral-500">{{ $payment->booking?->booking_code ?? '-' }} - {{ $payment->booking?->customer?->name ?? '-' }}</p>
+                                        <p class="mt-1 text-sm font-medium text-neutral-500 truncate">{{ $payment->booking?->booking_code ?? '-' }} — {{ $payment->booking?->customer?->name ?? '-' }}</p>
                                     </div>
                                     @include('payments._status-badge', ['status' => $payment->payment_status])
                                 </div>
@@ -122,11 +118,15 @@
                                     <x-card-field label="Petugas" :value="$payment->processedBy?->name ?? '-'" />
                                 </div>
 
-                                <div class="mt-5 flex flex-wrap gap-2">
+                                <div class="mt-5 vault-action-group">
                                     @can('view', $payment)
                                         <a href="{{ route('payments.show', $payment) }}" class="vault-action-secondary">Detail</a>
                                         <a href="{{ route('payments.invoice', $payment) }}" class="vault-action-success">Download PDF</a>
                                     @endcan
+
+                                    @if (Auth::user()->isUser() && in_array($payment->payment_status, [\App\Models\Payment::STATUS_UNPAID, \App\Models\Payment::STATUS_PARTIAL]))
+                                        <a href="{{ route('payments.pay', $payment) }}" class="vault-action-primary !bg-[#FF6626] hover:!bg-[#e55c22] !border-transparent">Bayar</a>
+                                    @endif
 
                                     @can('update', $payment)
                                         <a href="{{ route('payments.edit', $payment) }}" class="vault-action-primary">Edit</a>
@@ -142,7 +142,7 @@
                                 </div>
                             </article>
                         @empty
-                            <div class="rounded-3xl border border-dashed border-[#E8DCCB] p-8 text-center text-sm font-medium text-neutral-500 xl:col-span-2">
+                            <div class="col-span-full rounded-3xl border border-dashed border-[#E8DCCB] p-8 text-center text-sm font-medium text-neutral-500">
                                 Belum ada transaksi pembayaran.
                                 @can('create', \App\Models\Payment::class)
                                     <a href="{{ route('payments.create') }}" class="font-black text-[#FF6626] hover:underline">Input pembayaran pertama</a>

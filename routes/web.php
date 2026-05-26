@@ -18,6 +18,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/monitoring', [BookingController::class, 'index'])->name('monitoring.index');
     Route::patch('/bookings/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.update-status');
     Route::get('/payments/{payment}/invoice', [PaymentController::class, 'invoice'])->name('payments.invoice');
+    Route::get('/payments/{payment}/pay', [PaymentController::class, 'pay'])->name('payments.pay');
+    Route::patch('/payments/{payment}/confirm', [PaymentController::class, 'confirm'])->name('payments.confirm');
     Route::resource('bookings', BookingController::class);
     Route::resource('customers', CustomerController::class);
     Route::resource('payments', PaymentController::class);
@@ -31,6 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware('role:kasir')->group(function () {
         Route::get('/kasir/dashboard', [DashboardController::class, 'kasir'])->name('dashboard.kasir');
+        Route::get('/kasir/riwayat', [BookingController::class, 'kasirHistory'])->name('kasir.riwayat');
     });
 
     Route::middleware('role:user')->group(function () {

@@ -33,6 +33,16 @@ class PaymentPolicy
         return $user->isAdmin();
     }
 
+    public function payPayment(User $user, Payment $payment): bool
+    {
+        return $payment->booking?->user_id === $user->id && in_array($payment->payment_status, [Payment::STATUS_UNPAID, Payment::STATUS_PARTIAL]);
+    }
+
+    public function confirmPayment(User $user, Payment $payment): bool
+    {
+        return $payment->booking?->user_id === $user->id && in_array($payment->payment_status, [Payment::STATUS_UNPAID, Payment::STATUS_PARTIAL]);
+    }
+
     private function canManagePayments(User $user): bool
     {
         return $user->isAdmin() || $user->isKasir();

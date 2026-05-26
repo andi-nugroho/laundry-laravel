@@ -31,7 +31,7 @@
             <x-list-panel storage-key="vaultCustomersView" title="{{ Auth::user()->isUser() ? 'Profil Pelanggan' : 'Daftar Pelanggan' }}" description="Gunakan table untuk data lengkap atau card untuk tampilan ringkas.">
                 <x-slot name="table">
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full vault-table-compact divide-y divide-gray-200">
                             <thead class="sticky top-0 z-10 bg-gray-50">
                                 <tr>
                                     <th scope="col" class="px-6 py-4 text-left">Nama</th>
@@ -71,7 +71,7 @@
                                             @endif
                                         </td>
                                         <td class="whitespace-nowrap px-6 py-4">
-                                            <div class="flex items-center justify-end gap-2">
+                                            <div class="vault-action-group justify-end">
                                                 @can('view', $customer)
                                                     <a href="{{ route('customers.show', $customer) }}" class="vault-action-secondary">Detail</a>
                                                 @endcan
@@ -106,7 +106,7 @@
                 </x-slot>
 
                 <x-slot name="cards">
-                    <div class="grid gap-4 p-4 lg:grid-cols-2">
+                    <div class="vault-card-list">
                         @forelse ($customers as $customer)
                             <article class="vault-record-card">
                                 <div class="flex items-start justify-between gap-3">
@@ -131,7 +131,7 @@
                                     </x-card-field>
                                 </div>
 
-                                <div class="mt-5 flex flex-wrap gap-2">
+                                <div class="mt-5 vault-action-group">
                                     @can('view', $customer)
                                         <a href="{{ route('customers.show', $customer) }}" class="vault-action-secondary">Detail</a>
                                     @endcan
@@ -150,7 +150,7 @@
                                 </div>
                             </article>
                         @empty
-                            <div class="rounded-3xl border border-dashed border-[#E8DCCB] p-8 text-center text-sm font-medium text-neutral-500 lg:col-span-2">
+                            <div class="col-span-full rounded-3xl border border-dashed border-[#E8DCCB] p-8 text-center text-sm font-medium text-neutral-500">
                                 Belum ada data pelanggan.
                                 @if (Auth::user()->isAdmin() || Auth::user()->isKasir())
                                     <a href="{{ route('customers.create') }}" class="font-black text-[#FF6626] hover:underline">Tambah pelanggan pertama</a>

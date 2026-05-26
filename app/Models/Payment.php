@@ -78,6 +78,19 @@ class Payment extends Model
         return self::STATUS_PAID;
     }
 
+    public static function generatePaymentCode(string $paymentDate): string
+    {
+        $year = \Illuminate\Support\Carbon::parse($paymentDate)->format('Y');
+        $lastCode = self::query()
+            ->where('payment_code', 'like', "PAY-{$year}-%")
+            ->orderByDesc('payment_code')
+            ->value('payment_code');
+
+        $nextNumber = $lastCode ? ((int) substr($lastCode, -4)) + 1 : 1;
+
+        return sprintf('PAY-%s-%04d', $year, $nextNumber);
+    }
+
     public function booking(): BelongsTo
     {
         return $this->belongsTo(Booking::class);
