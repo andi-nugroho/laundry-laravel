@@ -35,6 +35,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware('role:user')->group(function () {
         Route::get('/user/dashboard', [DashboardController::class, 'user'])->name('dashboard.user');
+        Route::get('/user/status-cucian', [BookingController::class, 'userStatus'])->name('user.status-cucian');
+        Route::get('/user/riwayat', [BookingController::class, 'userHistory'])->name('user.riwayat');
     });
 });
 

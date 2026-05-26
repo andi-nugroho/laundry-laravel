@@ -2,254 +2,180 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Nota {{ $payment->payment_code }}</title>
     <style>
+        @page {
+            margin: 10px;
+        }
+
         * {
             box-sizing: border-box;
         }
 
         body {
             margin: 0;
-            background: #f3f4f6;
-            color: #111827;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .page {
-            width: 210mm;
-            min-height: 297mm;
-            margin: 24px auto;
             background: #ffffff;
-            padding: 24mm;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+            color: #181512;
+            font-family: DejaVu Sans, Arial, sans-serif;
+            font-size: 10px;
+            line-height: 1.35;
         }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            gap: 24px;
-            border-bottom: 2px solid #111827;
-            padding-bottom: 18px;
+        .receipt {
+            width: 100%;
+            margin: 0 auto;
+            padding: 8px 7px 10px;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .logo {
+            width: 38px;
+            height: 38px;
+            margin: 0 auto 4px;
+            object-fit: contain;
         }
 
         .brand {
-            font-size: 26px;
-            font-weight: 700;
-            letter-spacing: 0;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: .08em;
         }
 
-        .muted {
-            color: #6b7280;
+        .subtitle {
+            margin-top: 2px;
+            color: #62584f;
+            font-size: 8.5px;
         }
 
-        .invoice-title {
-            text-align: right;
+        .divider {
+            margin: 8px 0;
+            border-top: 1px dashed #7c7166;
         }
 
-        .invoice-title h1 {
-            margin: 0;
-            font-size: 22px;
-        }
-
-        .section {
-            margin-top: 24px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px;
-        }
-
-        .box {
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 16px;
+        .row {
+            clear: both;
+            margin: 3px 0;
         }
 
         .label {
-            color: #6b7280;
-            font-size: 12px;
-            text-transform: uppercase;
+            float: left;
+            width: 45%;
+            color: #62584f;
         }
 
         .value {
-            margin-top: 4px;
-            font-weight: 600;
+            float: right;
+            width: 55%;
+            text-align: right;
+            font-weight: 700;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th,
-        td {
-            border-bottom: 1px solid #e5e7eb;
-            padding: 10px 0;
-            text-align: left;
-            vertical-align: top;
-        }
-
-        th {
-            color: #6b7280;
-            font-size: 12px;
+        .wide-label {
+            color: #62584f;
+            font-size: 8.5px;
             text-transform: uppercase;
         }
 
-        .text-right {
-            text-align: right;
+        .wide-value {
+            margin-top: 2px;
+            font-weight: 800;
         }
 
-        .total-row td {
-            border-bottom: 0;
-            font-size: 16px;
-            font-weight: 700;
+        .total {
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .muted {
+            color: #62584f;
         }
 
         .status {
             display: inline-block;
-            border-radius: 999px;
-            padding: 4px 10px;
-            background: #dcfce7;
-            color: #166534;
-            font-size: 12px;
-            font-weight: 700;
+            padding: 2px 6px;
+            border: 1px solid #181512;
+            border-radius: 99px;
+            font-size: 8px;
+            font-weight: 800;
             text-transform: uppercase;
         }
 
-        .actions {
-            width: 210mm;
-            margin: 0 auto 24px;
-            text-align: right;
+        .thanks {
+            margin-top: 9px;
+            font-size: 8.5px;
+            text-align: center;
         }
 
-        .button {
-            border: 0;
-            border-radius: 6px;
-            background: #4f46e5;
-            color: #ffffff;
-            cursor: pointer;
-            font-weight: 700;
-            padding: 10px 16px;
-        }
-
-        @media print {
-            body {
-                background: #ffffff;
-            }
-
-            .page {
-                width: auto;
-                min-height: auto;
-                margin: 0;
-                box-shadow: none;
-                padding: 18mm;
-            }
-
-            .actions {
-                display: none;
-            }
+        .clear {
+            clear: both;
         }
     </style>
 </head>
 <body>
-    <div class="actions">
-        <button class="button" onclick="window.print()">Cetak Nota</button>
-    </div>
+    <main class="receipt">
+        <div class="center">
+            @if ($logoDataUri)
+                <img src="{{ $logoDataUri }}" class="logo" alt="VAULTLAUNDRY">
+            @endif
+            <div class="brand">VAULTLAUNDRY</div>
+            <div class="subtitle">Laundry Receipt / Nota Pembayaran</div>
+            <div class="subtitle">Jl. Operasional Laundry No. 1</div>
+        </div>
 
-    <main class="page">
-        <header class="header">
-            <div>
-                <div class="brand">Laundry Laravel</div>
-                <div class="muted">Nota pembayaran laundry</div>
-            </div>
-            <div class="invoice-title">
-                <h1>NOTA PEMBAYARAN</h1>
-                <div class="muted">{{ $payment->payment_code }}</div>
-            </div>
-        </header>
+        <div class="divider"></div>
 
-        <section class="section grid">
-            <div class="box">
-                <div class="label">Customer</div>
-                <div class="value">{{ $payment->booking?->customer?->name ?? '-' }}</div>
-                <div class="muted">{{ $payment->booking?->customer?->phone ?? '-' }}</div>
-            </div>
-            <div class="box">
-                <div class="label">Detail Pembayaran</div>
-                <div class="value">{{ $payment->payment_date?->format('d M Y H:i') }}</div>
-                <div class="muted">Kasir: {{ $payment->processedBy?->name ?? '-' }}</div>
-            </div>
-        </section>
+        <div class="row"><span class="label">Payment</span><span class="value">{{ $payment->payment_code }}</span></div>
+        <div class="row"><span class="label">Booking</span><span class="value">{{ $payment->booking?->booking_code ?? '-' }}</span></div>
+        <div class="row"><span class="label">Tanggal</span><span class="value">{{ $payment->payment_date?->format('d/m/Y H:i') }}</span></div>
+        <div class="row"><span class="label">Kasir</span><span class="value">{{ $payment->processedBy?->name ?? '-' }}</span></div>
+        <div class="clear"></div>
 
-        <section class="section">
-            <table>
-                <tbody>
-                    <tr>
-                        <th>Booking Code</th>
-                        <td class="text-right">{{ $payment->booking?->booking_code ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <th>Layanan Laundry</th>
-                        <td class="text-right">{{ $payment->booking?->service?->name ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <th>Berat Laundry</th>
-                        <td class="text-right">
-                            {{ $payment->booking?->weight ? number_format($payment->booking->weight, 2, ',', '.') . ' kg' : '-' }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Harga per Kg</th>
-                        <td class="text-right">
-                            Rp {{ number_format($payment->booking?->service?->price_per_kg ?? 0, 0, ',', '.') }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Metode Pembayaran</th>
-                        <td class="text-right">{{ ucfirst($payment->payment_method) }}</td>
-                    </tr>
-                    <tr>
-                        <th>Status Pembayaran</th>
-                        <td class="text-right"><span class="status">{{ $payment->payment_status }}</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
+        <div class="divider"></div>
 
-        <section class="section">
-            <table>
-                <tbody>
-                    <tr>
-                        <th>Total Tagihan</th>
-                        <td class="text-right">Rp {{ number_format($payment->total_bill, 0, ',', '.') }}</td>
-                    </tr>
-                    <tr>
-                        <th>Jumlah Dibayar</th>
-                        <td class="text-right">Rp {{ number_format($payment->amount_paid, 0, ',', '.') }}</td>
-                    </tr>
-                    <tr class="total-row">
-                        <td>Kembalian</td>
-                        <td class="text-right">Rp {{ number_format($payment->change_amount, 0, ',', '.') }}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
+        <div class="wide-label">Customer</div>
+        <div class="wide-value">{{ $payment->booking?->customer?->name ?? '-' }}</div>
+        <div class="muted">{{ $payment->booking?->customer?->phone ?? '-' }}</div>
+
+        <div class="divider"></div>
+
+        <div class="row"><span class="label">Layanan</span><span class="value">{{ $payment->booking?->service?->name ?? '-' }}</span></div>
+        <div class="row">
+            <span class="label">Berat</span>
+            <span class="value">{{ $payment->booking?->weight ? number_format($payment->booking->weight, 2, ',', '.') . ' kg' : '-' }}</span>
+        </div>
+        <div class="row">
+            <span class="label">Harga/Kg</span>
+            <span class="value">Rp {{ number_format($payment->booking?->service?->price_per_kg ?? 0, 0, ',', '.') }}</span>
+        </div>
+        <div class="clear"></div>
+
+        <div class="divider"></div>
+
+        <div class="row total"><span class="label">TOTAL</span><span class="value">Rp {{ number_format($payment->total_bill, 0, ',', '.') }}</span></div>
+        <div class="row"><span class="label">Dibayar</span><span class="value">Rp {{ number_format($payment->amount_paid, 0, ',', '.') }}</span></div>
+        <div class="row"><span class="label">Kembali</span><span class="value">Rp {{ number_format($payment->change_amount, 0, ',', '.') }}</span></div>
+        <div class="clear"></div>
+
+        <div class="divider"></div>
+
+        <div class="row"><span class="label">Metode</span><span class="value">{{ ucfirst($payment->payment_method) }}</span></div>
+        <div class="row"><span class="label">Status</span><span class="value"><span class="status">{{ $payment->payment_status }}</span></span></div>
+        <div class="clear"></div>
 
         @if ($payment->notes)
-            <section class="section box">
-                <div class="label">Catatan</div>
-                <div class="value">{{ $payment->notes }}</div>
-            </section>
+            <div class="divider"></div>
+            <div class="wide-label">Catatan</div>
+            <div class="wide-value">{{ $payment->notes }}</div>
         @endif
 
-        <section class="section muted">
-            Terima kasih telah menggunakan layanan Laundry Laravel.
-        </section>
+        <div class="divider"></div>
+        <div class="thanks">
+            Terima kasih telah menggunakan VAULTLAUNDRY.<br>
+            Simpan nota ini sebagai bukti pembayaran.
+        </div>
     </main>
 </body>
 </html>

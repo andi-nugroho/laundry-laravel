@@ -1,11 +1,11 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                <h2 class="text-xl font-black leading-tight text-neutral-900">
                     {{ Auth::user()->isUser() ? __('Riwayat Pembayaran') : __('Transaksi Pembayaran') }}
                 </h2>
-                <p class="mt-1 text-sm text-gray-500">
+                <p class="mt-1 text-sm font-medium text-neutral-500">
                     {{ Auth::user()->isUser() ? 'Lihat pembayaran booking laundry Anda' : 'Kelola transaksi pembayaran laundry' }}
                 </p>
             </div>
@@ -20,89 +20,144 @@
         </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-6">
+        <div class="mx-auto max-w-7xl space-y-5 sm:px-6 lg:px-8">
             @if (session('success'))
-                <div class="mb-4 rounded-md bg-green-50 p-4 text-sm text-green-700 ring-1 ring-green-100">
+                <div class="rounded-2xl border border-green-200 bg-green-50 p-4 text-sm font-semibold text-green-700">
                     {{ session('success') }}
                 </div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelanggan</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Layanan</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tagihan</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dibayar</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kembalian</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metode</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Petugas</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse ($payments as $payment)
+            <x-list-panel storage-key="vaultPaymentsView" title="Daftar Pembayaran" description="Cek transaksi dalam mode table atau invoice-like card.">
+                <x-slot name="table">
+                    <div class="max-w-full overflow-x-auto px-1 py-1">
+                        <table class="min-w-[1580px] divide-y divide-gray-200">
+                            <thead class="sticky top-0 z-10 bg-gray-50">
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $payment->payment_code }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $payment->booking?->booking_code ?? '-' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $payment->booking?->customer?->name ?? '-' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $payment->booking?->service?->name ?? '-' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rp {{ number_format($payment->total_bill, 0, ',', '.') }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rp {{ number_format($payment->amount_paid, 0, ',', '.') }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rp {{ number_format($payment->change_amount, 0, ',', '.') }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 capitalize">{{ $payment->payment_method }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @include('payments._status-badge', ['status' => $payment->payment_status])
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $payment->processedBy?->name ?? '-' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $payment->payment_date?->format('d M Y H:i') }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                        @can('view', $payment)
-                                            <a href="{{ route('payments.show', $payment) }}" class="text-gray-600 hover:text-gray-900">Detail</a>
-                                            <a href="{{ route('payments.invoice', $payment) }}" class="text-emerald-600 hover:text-emerald-900">Cetak Nota</a>
-                                        @endcan
-
-                                        @can('update', $payment)
-                                            <a href="{{ route('payments.edit', $payment) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                        @endcan
-
-                                        @can('delete', $payment)
-                                            <form action="{{ route('payments.destroy', $payment) }}" method="POST" class="inline"
-                                                onsubmit="return confirm('Yakin ingin menghapus pembayaran ini?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
-                                            </form>
-                                        @endcan
-                                    </td>
+                                    <th scope="col" class="px-6 py-4 text-left">Kode</th>
+                                    <th scope="col" class="px-6 py-4 text-left">Booking</th>
+                                    <th scope="col" class="px-6 py-4 text-left">Pelanggan</th>
+                                    <th scope="col" class="px-6 py-4 text-left">Layanan</th>
+                                    <th scope="col" class="px-6 py-4 text-left">Tagihan</th>
+                                    <th scope="col" class="px-6 py-4 text-left">Dibayar</th>
+                                    <th scope="col" class="px-6 py-4 text-left">Kembalian</th>
+                                    <th scope="col" class="px-6 py-4 text-left">Metode</th>
+                                    <th scope="col" class="px-6 py-4 text-left">Status</th>
+                                    <th scope="col" class="px-6 py-4 text-left">Petugas</th>
+                                    <th scope="col" class="px-6 py-4 text-left">Tanggal</th>
+                                    <th scope="col" class="px-6 py-4 text-right">Aksi</th>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="12" class="px-6 py-12 text-center text-sm text-gray-500">
-                                        Belum ada transaksi pembayaran.
-                                        @can('create', \App\Models\Payment::class)
-                                            <a href="{{ route('payments.create') }}" class="text-indigo-600 hover:underline">Input pembayaran pertama</a>
-                                        @endcan
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                                @forelse ($payments as $payment)
+                                    <tr>
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-black text-neutral-900">{{ $payment->payment_code }}</td>
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-600">{{ $payment->booking?->booking_code ?? '-' }}</td>
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-600">{{ $payment->booking?->customer?->name ?? '-' }}</td>
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-600">{{ $payment->booking?->service?->name ?? '-' }}</td>
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-bold text-neutral-900">Rp {{ number_format($payment->total_bill, 0, ',', '.') }}</td>
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-bold text-neutral-900">Rp {{ number_format($payment->amount_paid, 0, ',', '.') }}</td>
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-bold text-neutral-900">Rp {{ number_format($payment->change_amount, 0, ',', '.') }}</td>
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium capitalize text-neutral-600">{{ $payment->payment_method }}</td>
+                                        <td class="whitespace-nowrap px-6 py-4">
+                                            @include('payments._status-badge', ['status' => $payment->payment_status])
+                                        </td>
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-600">{{ $payment->processedBy?->name ?? '-' }}</td>
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-600">{{ $payment->payment_date?->format('d M Y H:i') }}</td>
+                                        <td class="min-w-72 px-6 py-4">
+                                            <div class="flex flex-wrap items-center justify-end gap-2">
+                                                @can('view', $payment)
+                                                    <a href="{{ route('payments.show', $payment) }}" class="vault-action-secondary">Detail</a>
+                                                    <a href="{{ route('payments.invoice', $payment) }}" class="vault-action-success">Download PDF</a>
+                                                @endcan
+
+                                                @can('update', $payment)
+                                                    <a href="{{ route('payments.edit', $payment) }}" class="vault-action-primary">Edit</a>
+                                                @endcan
+
+                                                @can('delete', $payment)
+                                                    <form action="{{ route('payments.destroy', $payment) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus pembayaran ini?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="vault-action-danger">Hapus</button>
+                                                    </form>
+                                                @endcan
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="12" class="px-6 py-12 text-center text-sm font-medium text-neutral-500">
+                                            Belum ada transaksi pembayaran.
+                                            @can('create', \App\Models\Payment::class)
+                                                <a href="{{ route('payments.create') }}" class="font-black text-[#FF6626] hover:underline">Input pembayaran pertama</a>
+                                            @endcan
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </x-slot>
+
+                <x-slot name="cards">
+                    <div class="grid gap-4 p-4 xl:grid-cols-2">
+                        @forelse ($payments as $payment)
+                            <article class="vault-record-card">
+                                <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                    <div>
+                                        <h3 class="text-base font-black text-neutral-950">{{ $payment->payment_code }}</h3>
+                                        <p class="mt-1 text-sm font-medium text-neutral-500">{{ $payment->booking?->booking_code ?? '-' }} - {{ $payment->booking?->customer?->name ?? '-' }}</p>
+                                    </div>
+                                    @include('payments._status-badge', ['status' => $payment->payment_status])
+                                </div>
+
+                                <div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                    <x-card-field label="Layanan" :value="$payment->booking?->service?->name ?? '-'" />
+                                    <x-card-field label="Tagihan" :value="'Rp '.number_format($payment->total_bill, 0, ',', '.')" />
+                                    <x-card-field label="Dibayar" :value="'Rp '.number_format($payment->amount_paid, 0, ',', '.')" />
+                                    <x-card-field label="Kembalian" :value="'Rp '.number_format($payment->change_amount, 0, ',', '.')" />
+                                    <x-card-field label="Metode" :value="ucfirst($payment->payment_method)" />
+                                    <x-card-field label="Tanggal" :value="$payment->payment_date?->format('d M Y H:i') ?? '-'" />
+                                    <x-card-field label="Petugas" :value="$payment->processedBy?->name ?? '-'" />
+                                </div>
+
+                                <div class="mt-5 flex flex-wrap gap-2">
+                                    @can('view', $payment)
+                                        <a href="{{ route('payments.show', $payment) }}" class="vault-action-secondary">Detail</a>
+                                        <a href="{{ route('payments.invoice', $payment) }}" class="vault-action-success">Download PDF</a>
+                                    @endcan
+
+                                    @can('update', $payment)
+                                        <a href="{{ route('payments.edit', $payment) }}" class="vault-action-primary">Edit</a>
+                                    @endcan
+
+                                    @can('delete', $payment)
+                                        <form action="{{ route('payments.destroy', $payment) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus pembayaran ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="vault-action-danger">Hapus</button>
+                                        </form>
+                                    @endcan
+                                </div>
+                            </article>
+                        @empty
+                            <div class="rounded-3xl border border-dashed border-[#E8DCCB] p-8 text-center text-sm font-medium text-neutral-500 xl:col-span-2">
+                                Belum ada transaksi pembayaran.
+                                @can('create', \App\Models\Payment::class)
+                                    <a href="{{ route('payments.create') }}" class="font-black text-[#FF6626] hover:underline">Input pembayaran pertama</a>
+                                @endcan
+                            </div>
+                        @endforelse
+                    </div>
+                </x-slot>
 
                 @if ($payments->hasPages())
-                    <div class="px-6 py-4 border-t border-gray-100">
+                    <x-slot name="footer">
                         {{ $payments->links() }}
-                    </div>
+                    </x-slot>
                 @endif
-            </div>
+            </x-list-panel>
         </div>
     </div>
 </x-app-layout>

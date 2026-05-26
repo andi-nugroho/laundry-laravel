@@ -34,6 +34,44 @@ class BookingController extends Controller
         ]);
     }
 
+    public function userStatus(Request $request): View
+    {
+        $bookings = Booking::query()
+            ->with(['customer', 'service', 'payment'])
+            ->where('user_id', $request->user()->id)
+            ->whereNotIn('status', [
+                Booking::STATUS_SELESAI,
+                Booking::STATUS_DIAMBIL,
+                Booking::STATUS_DIBATALKAN,
+            ])
+            ->latest('booking_date')
+            ->latest('id')
+            ->paginate(10);
+
+        return view('bookings.user-status', [
+            'bookings' => $bookings,
+        ]);
+    }
+
+    public function userHistory(Request $request): View
+    {
+        $bookings = Booking::query()
+            ->with(['customer', 'service', 'payment'])
+            ->where('user_id', $request->user()->id)
+            ->whereIn('status', [
+                Booking::STATUS_SELESAI,
+                Booking::STATUS_DIAMBIL,
+                Booking::STATUS_DIBATALKAN,
+            ])
+            ->latest('booking_date')
+            ->latest('id')
+            ->paginate(10);
+
+        return view('bookings.user-history', [
+            'bookings' => $bookings,
+        ]);
+    }
+
     public function create(Request $request): View
     {
         Gate::authorize('create', Booking::class);

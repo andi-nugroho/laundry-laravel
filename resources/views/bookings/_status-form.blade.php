@@ -3,13 +3,13 @@
         @csrf
         @method('PATCH')
         <select name="status"
-            class="block w-full min-w-40 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
+            class="block w-full min-w-36 rounded-xl border-gray-300 text-xs font-semibold shadow-sm focus:border-[#FF6626] focus:ring-[#FF6626] sm:w-40">
             @foreach (\App\Models\Booking::STATUSES as $status)
                 <option value="{{ $status }}" @selected($booking->status === $status)>
                     {{ str_replace('_', ' ', ucfirst($status)) }}
                 </option>
             @endforeach
         </select>
-        <x-secondary-button type="submit">Update</x-secondary-button>
+        <x-secondary-button type="submit" class="!px-3 !py-2 !text-xs">Update</x-secondary-button>
     </form>
 @endcan

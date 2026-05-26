@@ -6,8 +6,10 @@ use App\Http\Requests\StorePaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
 use App\Models\Booking;
 use App\Models\Payment;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -67,13 +69,22 @@ class PaymentController extends Controller
         ]);
     }
 
-    public function invoice(Payment $payment): View
+    public function invoice(Payment $payment): Response
     {
         Gate::authorize('view', $payment);
 
-        return view('payments.invoice', [
-            'payment' => $payment->load(['booking.customer', 'booking.service', 'processedBy']),
-        ]);
+        $payment->load(['booking.customer', 'booking.service', 'processedBy']);
+        $logoPath = public_path('logo.svg');
+        $logoDataUri = file_exists($logoPath)
+            ? 'data:image/svg+xml;base64,'.base64_encode((string) file_get_contents($logoPath))
+            : null;
+
+        return Pdf::loadView('payments.invoice', [
+            'payment' => $payment,
+            'logoDataUri' => $logoDataUri,
+        ])
+            ->setPaper([0, 0, 226.77, 620], 'portrait')
+            ->download("nota-{$payment->payment_code}.pdf");
     }
 
     public function edit(Payment $payment): View

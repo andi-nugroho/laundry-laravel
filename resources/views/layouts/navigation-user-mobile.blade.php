@@ -4,14 +4,14 @@
 <x-responsive-nav-link :href="route('bookings.index')" :active="request()->routeIs('bookings.*')">
     {{ __('Booking Laundry') }}
 </x-responsive-nav-link>
-<x-responsive-nav-link href="#" :active="false">
-    Status Cucian <span class="text-xs text-gray-400">(segera)</span>
+<x-responsive-nav-link :href="route('user.status-cucian')" :active="request()->routeIs('user.status-cucian')">
+    {{ __('Status Cucian') }}
 </x-responsive-nav-link>
 <x-responsive-nav-link :href="route('monitoring.index')" :active="request()->routeIs('monitoring.*')">
     {{ __('Monitoring Laundry') }}
 </x-responsive-nav-link>
-<x-responsive-nav-link href="#" :active="false">
-    Riwayat <span class="text-xs text-gray-400">(segera)</span>
+<x-responsive-nav-link :href="route('user.riwayat')" :active="request()->routeIs('user.riwayat')">
+    {{ __('Riwayat') }}
 </x-responsive-nav-link>
 <x-responsive-nav-link :href="route('payments.index')" :active="request()->routeIs('payments.*')">
     {{ __('Riwayat Pembayaran') }}

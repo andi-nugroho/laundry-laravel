@@ -19,7 +19,7 @@ class PaymentInvoiceTest extends TestCase
         $this->actingAs($admin)
             ->get(route('payments.invoice', $payment))
             ->assertOk()
-            ->assertSee($payment->payment_code);
+            ->assertDownload("nota-{$payment->payment_code}.pdf");
     }
 
     public function test_kasir_can_access_invoice(): void
@@ -30,7 +30,7 @@ class PaymentInvoiceTest extends TestCase
         $this->actingAs($kasir)
             ->get(route('payments.invoice', $payment))
             ->assertOk()
-            ->assertSee('NOTA PEMBAYARAN');
+            ->assertDownload("nota-{$payment->payment_code}.pdf");
     }
 
     public function test_user_can_access_owned_invoice(): void
@@ -42,7 +42,7 @@ class PaymentInvoiceTest extends TestCase
         $this->actingAs($user)
             ->get(route('payments.invoice', $payment))
             ->assertOk()
-            ->assertSee($payment->payment_code);
+            ->assertDownload("nota-{$payment->payment_code}.pdf");
     }
 
     public function test_user_cannot_access_other_invoice(): void
