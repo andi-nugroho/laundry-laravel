@@ -7,6 +7,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\UserOrderController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -15,6 +16,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'redirect'])->name('dashboard');
+    Route::get('/dashboard/stats', [DashboardController::class, 'stats'])->name('dashboard.stats');
     Route::get('/monitoring', [BookingController::class, 'index'])->name('monitoring.index');
     Route::patch('/bookings/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.update-status');
     Route::get('/payments/{payment}/invoice', [PaymentController::class, 'invoice'])->name('payments.invoice');
@@ -38,6 +40,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware('role:user')->group(function () {
         Route::get('/user/dashboard', [DashboardController::class, 'user'])->name('dashboard.user');
+        Route::get('/user/pesan-laundry', [UserOrderController::class, 'create'])->name('user.orders.create');
+        Route::post('/user/pesan-laundry/checkout', [UserOrderController::class, 'checkout'])->name('user.orders.checkout');
+        Route::get('/user/pesan-laundry/success/{booking}', [UserOrderController::class, 'success'])->name('user.orders.success');
         Route::get('/user/status-cucian', [BookingController::class, 'userStatus'])->name('user.status-cucian');
         Route::get('/user/riwayat', [BookingController::class, 'userHistory'])->name('user.riwayat');
     });

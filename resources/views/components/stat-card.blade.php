@@ -1,7 +1,9 @@
 @props([
     'label',
     'value',
+    'stat' => null,
     'icon' => null,
+    'asset' => null,
     'color' => 'indigo',
 ])
 
@@ -22,9 +24,13 @@
         <div class="flex items-start justify-between gap-4">
             <div class="min-w-0 flex-1">
                 <p class="truncate text-sm font-semibold text-neutral-500">{{ $label }}</p>
-                <p class="mt-2 text-2xl font-black tracking-tight text-neutral-950">{{ $value }}</p>
+                <p @if ($stat) data-stat-key="{{ $stat }}" @endif class="mt-2 text-2xl font-black tracking-tight text-neutral-950">{{ $value }}</p>
             </div>
-            @if ($icon)
+            @if ($asset)
+                <div class="shrink-0 rounded-xl p-3 ring-1 {{ $colorClass }}">
+                    <img src="{{ asset($asset) }}" alt="" class="h-7 w-7 object-contain">
+                </div>
+            @elseif ($icon)
                 <div class="shrink-0 rounded-xl p-3 ring-1 {{ $colorClass }}">
                     {!! $icon !!}
                 </div>

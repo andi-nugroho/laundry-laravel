@@ -62,21 +62,21 @@
                 </nav>
             </header>
 
-            <section class="relative z-10 vault-section pt-36 pb-16 lg:pt-40 lg:pb-24 min-h-[calc(100vh-80px)] flex items-center">
-                <div class="w-full grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+            <section class="relative z-10 vault-section flex min-h-[calc(100vh-72px)] items-center pt-28 pb-12 sm:pt-[7.25rem] lg:pt-32 lg:pb-20">
+                <div class="grid w-full items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
                     <div class="max-w-3xl">
-                        <p class="font-mono-vault mb-6 inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-[#FF6626]">
+                        <p class="reveal font-mono-vault mb-6 inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-[#FF6626]">
                             <span class="h-px w-10 bg-[#FF6626]"></span>
                             Laundry system for modern teams
                         </p>
-                        <h1 class="font-display text-6xl leading-none tracking-normal text-neutral-950 sm:text-7xl lg:text-8xl">
+                        <h1 class="reveal reveal-delay-100 font-display text-6xl leading-none tracking-normal text-neutral-950 sm:text-7xl lg:text-8xl">
                             Booking laundry jadi rapi dari masuk sampai lunas.
                         </h1>
-                        <p class="mt-8 max-w-2xl text-lg leading-8 text-neutral-600 sm:text-xl">
+                        <p class="reveal reveal-delay-200 mt-8 max-w-2xl text-lg leading-8 text-neutral-600 sm:text-xl">
                             VAULTLAUNDRY menyatukan data pelanggan, booking, monitoring status cucian, transaksi pembayaran, invoice, dan laporan pendapatan dalam satu sistem yang siap dipakai.
                         </p>
 
-                        <div class="mt-10 flex flex-col gap-3 sm:flex-row">
+                        <div class="reveal reveal-delay-300 mt-10 flex flex-col gap-3 sm:flex-row">
                             @auth
                                 <a href="{{ route(auth()->user()->dashboardRouteName()) }}" class="vault-button">
                                     Buka Dashboard
@@ -95,7 +95,7 @@
                             @endauth
                         </div>
 
-                        <div class="mt-12 grid max-w-2xl grid-cols-3 gap-4 border-y border-black/10 py-6">
+                        <div class="reveal reveal-delay-400 mt-12 grid max-w-2xl grid-cols-3 gap-4 border-y border-black/10 py-6">
                             <div>
                                 <p class="font-display text-4xl leading-none text-neutral-950">8</p>
                                 <p class="mt-1 text-xs font-bold uppercase tracking-widest text-neutral-500">Status laundry</p>
@@ -111,34 +111,27 @@
                         </div>
                     </div>
 
-                    <div class="relative h-[450px] w-full flex items-center justify-center">
-                        <style>
-                            @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-                            @keyframes float-delayed { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-                            @keyframes float-slow { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-10px) rotate(5deg); } }
-                            .animate-float { animation: float 6s ease-in-out infinite; }
-                            .animate-float-delayed { animation: float-delayed 7s ease-in-out infinite 1s; }
-                            .animate-float-slow { animation: float-slow 8s ease-in-out infinite 2s; }
-                        </style>
-                        <div class="relative w-full max-w-[480px] aspect-square">
-                            <div class="absolute inset-0 bg-[#FF6626]/10 rounded-full blur-[80px] animate-pulse"></div>
-                            
-                            <img src="{{ asset('assets/washing-machine.webp') }}" alt="Mesin Cuci" class="absolute top-1/2 left-1/2 w-64 -translate-x-1/2 -translate-y-1/2 drop-shadow-2xl z-20 animate-float">
-                            <img src="{{ asset('assets/laundry-basket.webp') }}" alt="Keranjang" class="absolute bottom-10 -left-4 w-36 drop-shadow-xl z-30 animate-float-delayed">
-                            <img src="{{ asset('assets/iron.webp') }}" alt="Setrika" class="absolute top-16 right-0 w-32 drop-shadow-xl z-30 animate-float-slow">
-                            <img src="{{ asset('assets/detergent.webp') }}" alt="Deterjen" class="absolute top-0 -left-10 w-24 z-10 animate-float">
-                            <img src="{{ asset('assets/receipt.webp') }}" alt="Nota" class="absolute bottom-24 -right-12 w-20 z-10 animate-float-delayed">
-                            
-                            <div class="absolute bottom-4 -right-4 lg:-right-12 z-40 animate-float-slow w-48 rounded-2xl border border-white/40 bg-white/75 p-4 shadow-xl shadow-black/5 backdrop-blur-md">
-                                <p class="text-[10px] font-bold uppercase tracking-wider text-[#FF6626]">Live Operation</p>
-                                <p class="mt-1 text-sm font-black text-neutral-900">LDY-2026-0001</p>
-                                <div class="mt-2 flex items-center gap-2 text-xs font-semibold text-neutral-500">
-                                    <span class="relative flex h-2 w-2">
-                                      <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#FF6626] opacity-75"></span>
-                                      <span class="relative inline-flex h-2 w-2 rounded-full bg-[#FF6626]"></span>
-                                    </span>
-                                    Proses Dicuci
-                                </div>
+                    <div class="reveal reveal-delay-200 vault-hero-visual" aria-hidden="true">
+                        <div class="vault-hero-glow"></div>
+                        <div class="vault-hero-glow-secondary"></div>
+
+                        <img
+                            src="{{ asset('assets/washing-machine.webp') }}"
+                            alt="Mesin cuci VAULTLAUNDRY"
+                            class="vault-hero-main"
+                            width="480"
+                            height="480"
+                        >
+
+                        <div class="vault-hero-live-card">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-[#FF6626]">Live Operation</p>
+                            <p class="mt-1 text-sm font-black text-neutral-900">LDY-2026-0001</p>
+                            <div class="mt-2 flex items-center gap-2 text-xs font-semibold text-neutral-500">
+                                <span class="relative flex h-2 w-2">
+                                    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#FF6626] opacity-75"></span>
+                                    <span class="relative inline-flex h-2 w-2 rounded-full bg-[#FF6626]"></span>
+                                </span>
+                                Proses Dicuci
                             </div>
                         </div>
                     </div>
@@ -146,7 +139,7 @@
             </section>
 
             <section id="fitur" class="relative z-10 vault-section py-24">
-                <div class="max-w-3xl">
+                <div class="reveal max-w-3xl">
                     <p class="font-mono-vault text-xs font-bold uppercase tracking-[0.28em] text-[#FF6626]">Core system</p>
                     <h2 class="mt-4 font-display text-5xl leading-tight text-neutral-950 sm:text-6xl">Fitur utama yang menjaga operasional tetap terkendali.</h2>
                 </div>
@@ -161,7 +154,7 @@
                         ['icon' => 'receipt.webp', 'title' => 'Cetak Nota', 'text' => 'Invoice rapi siap print dengan rincian booking, layanan, dan kasir.'],
                         ['icon' => 'chartpie.webp', 'title' => 'Laporan', 'text' => 'Filter transaksi dan ringkasan pendapatan untuk admin dan kasir.'],
                     ] as $feature)
-                        <article class="vault-card relative z-10 bg-white p-6 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(255,102,38,0.15)] hover:border-[#FF6626]/30">
+                        <article class="reveal reveal-delay-{{ $loop->index * 100 }} vault-card relative z-10 bg-white p-6 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(255,102,38,0.15)] hover:border-[#FF6626]/30">
                             <div class="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FF6626] text-white shadow-lg shadow-[#FF6626]/30">
                                 <img src="{{ asset('assets/'.$feature['icon']) }}" alt="{{ $feature['title'] }}" class="h-8 w-8 object-contain">
                             </div>
@@ -174,7 +167,7 @@
 
             <section id="alur" class="relative z-10 bg-neutral-950 py-24 text-white">
                 <div class="vault-section">
-                    <div class="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+                    <div class="reveal grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
                         <div>
                             <p class="font-mono-vault text-xs font-bold uppercase tracking-[0.28em] text-orange-300">Workflow</p>
                             <h2 class="mt-4 font-display text-5xl leading-tight sm:text-6xl">Alur laundry dari meja kasir sampai nota.</h2>
@@ -191,7 +184,7 @@
                             ['step' => '03', 'title' => 'Proses', 'text' => 'Admin dan kasir mengubah status sesuai progres laundry.'],
                             ['step' => '04', 'title' => 'Bayar', 'text' => 'Payment, invoice, dan laporan pendapatan siap dicek.'],
                         ] as $item)
-                            <div class="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-6">
+                            <div class="reveal reveal-delay-{{ $loop->index * 100 }} rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-6">
                                 <p class="font-mono-vault text-xs font-bold text-orange-300">{{ $item['step'] }}</p>
                                 <h3 class="mt-8 text-xl font-black">{{ $item['title'] }}</h3>
                                 <p class="mt-3 text-sm leading-6 text-white/60">{{ $item['text'] }}</p>
@@ -203,7 +196,7 @@
 
             <section id="layanan" class="relative z-10 vault-section py-24">
                 <div class="grid gap-12 lg:grid-cols-[0.9fr_1.1fr]">
-                    <div>
+                    <div class="reveal">
                         <p class="font-mono-vault text-xs font-bold uppercase tracking-[0.28em] text-[#FF6626]">Laundry services</p>
                         <h2 class="mt-4 font-display text-5xl leading-tight text-neutral-950 sm:text-6xl">Layanan yang umum dipakai pelanggan harian.</h2>
                         <p class="mt-6 text-lg leading-8 text-neutral-600">
@@ -218,7 +211,7 @@
                             ['icon' => 'detergent.webp', 'name' => 'Express Laundry', 'desc' => 'Prioritas untuk kebutuhan cepat.', 'time' => '1 hari'],
                             ['icon' => 'delivery-scooter.webp', 'name' => 'Pickup Service', 'desc' => 'Pelanggan bisa pilih penjemputan.', 'time' => 'Terjadwal'],
                         ] as $service)
-                            <article class="group relative overflow-hidden rounded-3xl border border-black/5 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#FF6626]/10 hover:border-[#FF6626]/20">
+                            <article class="reveal reveal-delay-{{ $loop->index * 100 }} group relative overflow-hidden rounded-3xl border border-black/5 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#FF6626]/10 hover:border-[#FF6626]/20">
                                 <div class="flex items-start gap-5">
                                     <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#FFF9F1] border border-[#FF6626]/10 transition-transform group-hover:scale-110">
                                         <img src="{{ asset('assets/'.$service['icon']) }}" alt="{{ $service['name'] }}" class="h-10 w-10 object-contain drop-shadow-sm">
@@ -240,7 +233,7 @@
 
             <section id="faq" class="relative z-10 bg-[#0f0e0c] py-24 text-white">
                 <div class="vault-section max-w-4xl mx-auto">
-                    <div class="text-center mb-16">
+                    <div class="reveal text-center mb-16">
                         <p class="font-mono-vault text-xs font-bold uppercase tracking-[0.28em] text-[#FF6626]">Pertanyaan Umum</p>
                         <h2 class="mt-4 font-display text-4xl leading-tight sm:text-5xl text-white">Yang sering ditanyakan.</h2>
                     </div>
@@ -253,7 +246,7 @@
                             ['q' => 'Metode pembayaran apa saja yang tersedia?', 'a' => 'Sistem mencatat pembayaran secara tunai (Cash), Transfer Bank, dan E-Wallet (termasuk QRIS). Admin juga bisa memproses pembayaran parsial atau lunas penuh.'],
                             ['q' => 'Apakah nota bisa diunduh?', 'a' => 'Ya. Setelah transaksi dibuat, nota berformat PDF bisa langsung diunduh atau dicetak dari menu detail booking maupun riwayat pembayaran.'],
                         ] as $index => $faq)
-                            <div class="bg-[#1a1714] border border-[#2a2520] rounded-2xl transition-all duration-300 hover:border-[#FF6626]/30 overflow-hidden">
+                            <div class="reveal reveal-delay-{{ $loop->index * 100 }} bg-[#1a1714] border border-[#2a2520] rounded-2xl transition-all duration-300 hover:border-[#FF6626]/30 overflow-hidden">
                                 <button @click="active !== {{ $index }} ? active = {{ $index }} : active = null" class="flex w-full items-center justify-between py-5 px-6 text-left transition hover:text-[#FF6626] text-white">
                                     <span class="text-base sm:text-lg font-bold text-white pr-4">{{ $faq['q'] }}</span>
                                     <span class="ml-6 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/5 transition-colors" :class="active === {{ $index }} ? 'bg-[#FF6626] text-white' : ''">
@@ -273,7 +266,7 @@
             </section>
 
             <section class="relative z-10 vault-section py-24">
-                <div class="overflow-hidden rounded-[2rem] bg-gradient-to-r from-[#FF6626] to-[#f2520f] p-8 text-white shadow-2xl shadow-orange-500/30 sm:p-12 lg:p-16">
+                <div class="reveal overflow-hidden rounded-[2rem] bg-gradient-to-r from-[#FF6626] to-[#f2520f] p-8 text-white shadow-2xl shadow-orange-500/30 sm:p-12 lg:p-16">
                     <div class="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center relative z-10">
                         <div>
                             <p class="font-mono-vault text-xs font-black uppercase tracking-[0.28em] text-white">Ready to wash smarter</p>
@@ -337,9 +330,17 @@
                         </div>
                     </div>
                     
-                    <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 relative z-10">
+                    <div class="relative z-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 md:flex-row">
                         <p class="text-sm text-white/50">&copy; {{ date('Y') }} VAULTLAUNDRY. All rights reserved.</p>
-                        <p class="text-sm text-white/50">Built with Laravel & Tailwind</p>
+                        <p class="text-sm text-white/50">
+                            Open Source | 2026 Created by
+                            <a
+                                href="https://andidelouise.net"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="ml-1 font-bold text-white underline decoration-[#FF6626] decoration-2 underline-offset-4 transition hover:text-[#FF6626]"
+                            >Andi Nugroho</a>
+                        </p>
                     </div>
                 </div>
 
