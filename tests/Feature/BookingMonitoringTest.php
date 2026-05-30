@@ -3,6 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Booking;
+use App\Models\Customer;
+use App\Models\Payment;
+use App\Models\Service;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -86,5 +89,82 @@ class BookingMonitoringTest extends TestCase
             ->assertOk()
             ->assertSee('Dicuci')
             ->assertSee('Tracking Status');
+    }
+
+    public function test_admin_can_filter_booking_index(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $customer = Customer::factory()->create(['name' => 'Alya Filter']);
+        $service = Service::factory()->create(['name' => 'Laundry Express Filter']);
+        $target = Booking::factory()->create([
+            'booking_code' => 'LDY-2026-FLTR',
+            'customer_id' => $customer->id,
+            'service_id' => $service->id,
+            'booking_date' => '2026-05-10',
+            'pickup_type' => Booking::PICKUP_PICKUP,
+            'status' => Booking::STATUS_DICUCI,
+            'total_price' => 75000,
+        ]);
+        Payment::factory()->create([
+            'booking_id' => $target->id,
+            'payment_status' => Payment::STATUS_UNPAID,
+            'amount_paid' => 0,
+            'total_bill' => 75000,
+        ]);
+
+        $other = Booking::factory()->create([
+            'booking_code' => 'LDY-2026-OTHER',
+            'booking_date' => '2026-05-20',
+            'pickup_type' => Booking::PICKUP_ANTAR_SENDIRI,
+            'status' => Booking::STATUS_SELESAI,
+            'total_price' => 15000,
+        ]);
+        Payment::factory()->create([
+            'booking_id' => $other->id,
+            'payment_status' => Payment::STATUS_PAID,
+            'amount_paid' => 15000,
+            'total_bill' => 15000,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('bookings.index', [
+                'search' => 'Alya',
+                'status' => Booking::STATUS_DICUCI,
+                'payment_status' => Payment::STATUS_UNPAID,
+                'pickup_type' => Booking::PICKUP_PICKUP,
+                'date_from' => '2026-05-01',
+                'date_to' => '2026-05-30',
+                'sort' => 'total_terbesar',
+            ]))
+            ->assertOk()
+            ->assertSee('LDY-2026-FLTR')
+            ->assertSee('Menampilkan 1 booking')
+            ->assertSee('Search: Alya')
+            ->assertDontSee('LDY-2026-OTHER');
+    }
+
+    public function test_unpaid_filter_includes_bookings_without_payment(): void
+    {
+        $kasir = User::factory()->kasir()->create();
+        $withoutPayment = Booking::factory()->create([
+            'booking_code' => 'LDY-2026-NOPAY',
+        ]);
+        $paidBooking = Booking::factory()->create([
+            'booking_code' => 'LDY-2026-PAID',
+        ]);
+        Payment::factory()->create([
+            'booking_id' => $paidBooking->id,
+            'payment_status' => Payment::STATUS_PAID,
+            'amount_paid' => 50000,
+            'total_bill' => 50000,
+        ]);
+
+        $this->actingAs($kasir)
+            ->get(route('monitoring.index', [
+                'payment_status' => Payment::STATUS_UNPAID,
+            ]))
+            ->assertOk()
+            ->assertSee('LDY-2026-NOPAY')
+            ->assertDontSee('LDY-2026-PAID');
     }
 }
