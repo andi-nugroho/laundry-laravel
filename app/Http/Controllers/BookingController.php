@@ -22,17 +22,51 @@ class BookingController extends Controller
     {
         Gate::authorize('viewAny', Booking::class);
 
+        $filters = $this->bookingFilters($request);
+
         $query = Booking::query()
             ->with(['user', 'customer', 'service', 'payment'])
-            ->latest('booking_date')
-            ->latest('id');
+            ->when($filters['search'] !== '', function ($query) use ($filters) {
+                $search = $filters['search'];
+
+                $query->where(function ($searchQuery) use ($search) {
+                    $searchQuery
+                        ->where('booking_code', 'like', "%{$search}%")
+                        ->orWhereHas('customer', fn ($customerQuery) => $customerQuery->where('name', 'like', "%{$search}%"))
+                        ->orWhereHas('service', fn ($serviceQuery) => $serviceQuery->where('name', 'like', "%{$search}%"));
+                });
+            })
+            ->when($filters['status'] !== 'all', fn ($query) => $query->where('status', $filters['status']))
+            ->when($filters['pickup_type'] !== 'all', fn ($query) => $query->where('pickup_type', $filters['pickup_type']))
+            ->when($filters['date_from'], fn ($query) => $query->whereDate('booking_date', '>=', $filters['date_from']))
+            ->when($filters['date_to'], fn ($query) => $query->whereDate('booking_date', '<=', $filters['date_to']))
+            ->when($filters['payment_status'] !== 'all', function ($query) use ($filters) {
+                if ($filters['payment_status'] === Payment::STATUS_UNPAID) {
+                    $query->where(function ($paymentQuery) {
+                        $paymentQuery
+                            ->whereHas('payment', fn ($payment) => $payment->where('payment_status', Payment::STATUS_UNPAID))
+                            ->orWhereDoesntHave('payment');
+                    });
+
+                    return;
+                }
+
+                $query->whereHas('payment', fn ($payment) => $payment->where('payment_status', $filters['payment_status']));
+            });
 
         if ($request->user()->isUser()) {
             $query->where('user_id', $request->user()->id);
         }
 
+        $this->applyBookingSort($query, $filters['sort']);
+
         return view('bookings.index', [
-            'bookings' => $query->paginate(10),
+            'bookings' => $query->paginate(10)->withQueryString(),
+            'filters' => $filters,
+            'activeFilters' => $this->activeBookingFilters($filters),
+            'statusOptions' => Booking::STATUSES,
+            'paymentStatusOptions' => Payment::STATUSES,
+            'pickupTypeOptions' => Booking::PICKUP_TYPES,
         ]);
     }
 
@@ -274,5 +308,77 @@ class BookingController extends Controller
         return Service::query()
             ->orderBy('name')
             ->get(['id', 'name', 'price_per_kg', 'estimated_days', 'description', 'is_active']);
+    }
+
+    /**
+     * @return array{search: string, status: string, payment_status: string, pickup_type: string, date_from: ?string, date_to: ?string, sort: string}
+     */
+    private function bookingFilters(Request $request): array
+    {
+        $status = (string) $request->query('status', 'all');
+        $paymentStatus = (string) $request->query('payment_status', 'all');
+        $pickupType = (string) $request->query('pickup_type', 'all');
+        $sort = (string) $request->query('sort', 'terbaru');
+        $dateFrom = (string) $request->query('date_from', '');
+        $dateTo = (string) $request->query('date_to', '');
+
+        return [
+            'search' => trim((string) $request->query('search', '')),
+            'status' => in_array($status, Booking::STATUSES, true) ? $status : 'all',
+            'payment_status' => in_array($paymentStatus, Payment::STATUSES, true) ? $paymentStatus : 'all',
+            'pickup_type' => in_array($pickupType, Booking::PICKUP_TYPES, true) ? $pickupType : 'all',
+            'date_from' => preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFrom) ? $dateFrom : null,
+            'date_to' => preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo) ? $dateTo : null,
+            'sort' => in_array($sort, ['terbaru', 'terlama', 'total_terbesar', 'total_terkecil'], true) ? $sort : 'terbaru',
+        ];
+    }
+
+    private function applyBookingSort($query, string $sort): void
+    {
+        match ($sort) {
+            'terlama' => $query->oldest('booking_date')->oldest('id'),
+            'total_terbesar' => $query->orderByDesc('total_price')->latest('id'),
+            'total_terkecil' => $query->orderBy('total_price')->oldest('id'),
+            default => $query->latest('booking_date')->latest('id'),
+        };
+    }
+
+    /**
+     * @param  array{search: string, status: string, payment_status: string, pickup_type: string, date_from: ?string, date_to: ?string, sort: string}  $filters
+     * @return array<string, string>
+     */
+    private function activeBookingFilters(array $filters): array
+    {
+        $active = [];
+
+        if ($filters['search'] !== '') {
+            $active['search'] = 'Search: '.$filters['search'];
+        }
+
+        if ($filters['status'] !== 'all') {
+            $active['status'] = 'Status: '.str_replace('_', ' ', $filters['status']);
+        }
+
+        if ($filters['payment_status'] !== 'all') {
+            $active['payment_status'] = 'Pembayaran: '.$filters['payment_status'];
+        }
+
+        if ($filters['pickup_type'] !== 'all') {
+            $active['pickup_type'] = 'Pickup: '.str_replace('_', ' ', $filters['pickup_type']);
+        }
+
+        if ($filters['date_from']) {
+            $active['date_from'] = 'Dari: '.$filters['date_from'];
+        }
+
+        if ($filters['date_to']) {
+            $active['date_to'] = 'Sampai: '.$filters['date_to'];
+        }
+
+        if ($filters['sort'] !== 'terbaru') {
+            $active['sort'] = 'Sort: '.str_replace('_', ' ', $filters['sort']);
+        }
+
+        return $active;
     }
 }

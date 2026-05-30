@@ -36,13 +36,34 @@ class PaymentInvoiceTest extends TestCase
     public function test_user_can_access_owned_invoice(): void
     {
         $user = User::factory()->create();
-        $payment = Payment::factory()->create();
+        $payment = Payment::factory()->create([
+            'payment_status' => Payment::STATUS_PAID,
+            'amount_paid' => 50000,
+            'total_bill' => 50000,
+            'change_amount' => 0,
+        ]);
         $payment->booking()->update(['user_id' => $user->id]);
 
         $this->actingAs($user)
             ->get(route('payments.invoice', $payment))
             ->assertOk()
             ->assertDownload("nota-{$payment->payment_code}.pdf");
+    }
+
+    public function test_user_cannot_access_owned_unpaid_invoice(): void
+    {
+        $user = User::factory()->create();
+        $payment = Payment::factory()->create([
+            'payment_status' => Payment::STATUS_UNPAID,
+            'amount_paid' => 0,
+            'total_bill' => 50000,
+            'change_amount' => 0,
+        ]);
+        $payment->booking()->update(['user_id' => $user->id]);
+
+        $this->actingAs($user)
+            ->get(route('payments.invoice', $payment))
+            ->assertForbidden();
     }
 
     public function test_user_cannot_access_other_invoice(): void

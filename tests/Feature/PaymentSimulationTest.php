@@ -54,7 +54,7 @@ class PaymentSimulationTest extends TestCase
                 'payment_method' => 'qris',
             ]);
 
-        $response->assertRedirect(route('payments.show', $payment));
+        $response->assertRedirect(route('user.orders.success', $booking));
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('payments', [
@@ -64,6 +64,98 @@ class PaymentSimulationTest extends TestCase
             'payment_status' => Payment::STATUS_PAID,
             'processed_by' => $user->id,
         ]);
+    }
+
+    public function test_user_checkout_qris_redirects_to_mock_payment_page_unpaid(): void
+    {
+        $user = User::factory()->create();
+        $service = Service::factory()->create(['price_per_kg' => 12000, 'is_active' => true]);
+
+        $response = $this->actingAs($user)
+            ->post(route('user.orders.checkout'), [
+                'service_id' => $service->id,
+                'weight' => 2,
+                'pickup_type' => 'antar_sendiri',
+                'payment_option' => 'qris',
+            ]);
+
+        $booking = Booking::latest('id')->first();
+        $payment = Payment::where('booking_id', $booking->id)->first();
+
+        $this->assertNotNull($payment);
+        $this->assertEquals(Payment::STATUS_UNPAID, $payment->payment_status);
+        $this->assertEquals(0.0, (float) $payment->amount_paid);
+        $this->assertStringContainsString('payment_channel=qris', $payment->notes);
+
+        $response->assertRedirect(route('payments.pay', $payment));
+        $response->assertSessionHas('success');
+    }
+
+    public function test_user_checkout_cod_goes_directly_to_success_unpaid(): void
+    {
+        $user = User::factory()->create();
+        $service = Service::factory()->create(['price_per_kg' => 12000, 'is_active' => true]);
+
+        $response = $this->actingAs($user)
+            ->post(route('user.orders.checkout'), [
+                'service_id' => $service->id,
+                'weight' => 1,
+                'pickup_type' => 'pickup',
+                'payment_option' => 'cod',
+            ]);
+
+        $booking = Booking::latest('id')->first();
+        $payment = Payment::where('booking_id', $booking->id)->first();
+
+        $this->assertNotNull($payment);
+        $this->assertEquals(Payment::METHOD_CASH, $payment->payment_method);
+        $this->assertEquals(Payment::STATUS_UNPAID, $payment->payment_status);
+
+        $response->assertRedirect(route('user.orders.success', $booking));
+        $response->assertSessionHas('payment_pending');
+    }
+
+    public function test_mock_payment_page_shows_transfer_instructions(): void
+    {
+        $user = User::factory()->create();
+        $booking = Booking::factory()->create(['user_id' => $user->id, 'total_price' => 50000]);
+        $payment = Payment::factory()->create([
+            'booking_id' => $booking->id,
+            'payment_method' => Payment::METHOD_TRANSFER,
+            'payment_status' => Payment::STATUS_UNPAID,
+            'total_bill' => 50000,
+            'amount_paid' => 0,
+            'notes' => 'payment_channel=transfer; Transfer Bank BCA',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('payments.pay', $payment))
+            ->assertOk()
+            ->assertSee('Bank BCA')
+            ->assertSee('1234567890')
+            ->assertSee('Saya Sudah Transfer');
+    }
+
+    public function test_mock_payment_page_shows_ewallet_instructions(): void
+    {
+        $user = User::factory()->create();
+        $booking = Booking::factory()->create(['user_id' => $user->id, 'total_price' => 50000]);
+        $payment = Payment::factory()->create([
+            'booking_id' => $booking->id,
+            'payment_method' => Payment::METHOD_EWALLET,
+            'payment_status' => Payment::STATUS_UNPAID,
+            'total_bill' => 50000,
+            'amount_paid' => 0,
+            'notes' => 'payment_channel=ewallet; E-Wallet mock payment',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('payments.pay', $payment))
+            ->assertOk()
+            ->assertSee('Dana')
+            ->assertSee('OVO')
+            ->assertSee('GoPay')
+            ->assertSee('0812-0000-2026');
     }
 
     public function test_user_cannot_confirm_other_payment(): void

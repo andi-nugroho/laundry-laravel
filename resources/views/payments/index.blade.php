@@ -45,6 +45,13 @@
                             </thead>
                             <tbody class="divide-y divide-gray-200 bg-white">
                                 @forelse ($payments as $payment)
+                                    @php
+                                        $badgeStatus = Auth::user()->isUser()
+                                            && $payment->payment_status === \App\Models\Payment::STATUS_UNPAID
+                                            && $payment->payment_method !== \App\Models\Payment::METHOD_CASH
+                                                ? 'waiting_confirmation'
+                                                : $payment->payment_status;
+                                    @endphp
                                     <tr>
                                         <td class="vault-nowrap px-3 py-3 text-sm font-black text-neutral-900">{{ $payment->payment_code }}</td>
                                         <td class="vault-nowrap px-3 py-3 text-sm font-medium text-neutral-600">{{ $payment->booking?->booking_code ?? '-' }}</td>
@@ -53,14 +60,16 @@
                                         </td>
                                         <td class="vault-nowrap px-3 py-3 text-sm font-bold text-neutral-900 text-right">Rp {{ number_format($payment->total_bill, 0, ',', '.') }}</td>
                                         <td class="vault-nowrap px-3 py-3">
-                                            @include('payments._status-badge', ['status' => $payment->payment_status])
+                                            @include('payments._status-badge', ['status' => $badgeStatus])
                                         </td>
                                         <td class="vault-nowrap px-3 py-3 text-sm font-medium capitalize text-neutral-600">{{ $payment->payment_method }}</td>
                                         <td class="px-3 py-3">
                                             <div class="vault-action-group justify-end">
                                                 @can('view', $payment)
                                                     <a href="{{ route('payments.show', $payment) }}" class="vault-action-secondary">Detail</a>
-                                                    <a href="{{ route('payments.invoice', $payment) }}" class="vault-action-success">PDF</a>
+                                                    @if (! Auth::user()->isUser() || $payment->payment_status === \App\Models\Payment::STATUS_PAID)
+                                                        <a href="{{ route('payments.invoice', $payment) }}" class="vault-action-success">PDF</a>
+                                                    @endif
                                                 @endcan
 
                                                 @if (Auth::user()->isUser() && in_array($payment->payment_status, [\App\Models\Payment::STATUS_UNPAID, \App\Models\Payment::STATUS_PARTIAL]))
@@ -99,13 +108,20 @@
                 <x-slot name="cards">
                     <div class="vault-card-list">
                         @forelse ($payments as $payment)
+                            @php
+                                $badgeStatus = Auth::user()->isUser()
+                                    && $payment->payment_status === \App\Models\Payment::STATUS_UNPAID
+                                    && $payment->payment_method !== \App\Models\Payment::METHOD_CASH
+                                        ? 'waiting_confirmation'
+                                        : $payment->payment_status;
+                            @endphp
                             <article class="vault-record-card">
                                 <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                     <div class="min-w-0">
                                         <h3 class="text-base font-black text-neutral-950">{{ $payment->payment_code }}</h3>
                                         <p class="mt-1 text-sm font-medium text-neutral-500 truncate">{{ $payment->booking?->booking_code ?? '-' }} — {{ $payment->booking?->customer?->name ?? '-' }}</p>
                                     </div>
-                                    @include('payments._status-badge', ['status' => $payment->payment_status])
+                                    @include('payments._status-badge', ['status' => $badgeStatus])
                                 </div>
 
                                 <div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -121,7 +137,9 @@
                                 <div class="mt-5 vault-action-group">
                                     @can('view', $payment)
                                         <a href="{{ route('payments.show', $payment) }}" class="vault-action-secondary">Detail</a>
-                                        <a href="{{ route('payments.invoice', $payment) }}" class="vault-action-success">Download PDF</a>
+                                        @if (! Auth::user()->isUser() || $payment->payment_status === \App\Models\Payment::STATUS_PAID)
+                                            <a href="{{ route('payments.invoice', $payment) }}" class="vault-action-success">Download PDF</a>
+                                        @endif
                                     @endcan
 
                                     @if (Auth::user()->isUser() && in_array($payment->payment_status, [\App\Models\Payment::STATUS_UNPAID, \App\Models\Payment::STATUS_PARTIAL]))

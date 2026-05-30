@@ -172,7 +172,7 @@
                             <span class="text-xl font-black text-neutral-950" x-text="totalLabel()"></span>
                         </div>
                         <p class="mt-2 text-xs font-medium text-neutral-500" x-show="paymentOption !== 'cod'">
-                            Klik “Saya Sudah Bayar” setelah melakukan pembayaran sesuai metode pilihan.
+                            Setelah checkout, Anda akan diarahkan ke halaman instruksi pembayaran.
                         </p>
                         <p class="mt-2 text-xs font-medium text-neutral-500" x-show="paymentOption === 'cod'">
                             COD akan tercatat sebagai unpaid sampai dikonfirmasi kasir.
@@ -183,7 +183,7 @@
                         type="submit"
                         class="mt-5 w-full rounded-2xl bg-[#FF6626] px-5 py-3 text-sm font-black text-white shadow-lg shadow-orange-500/25 transition hover:-translate-y-0.5 hover:bg-[#d94b12] disabled:cursor-not-allowed disabled:opacity-50"
                         :disabled="! selected || Number(weight || 0) <= 0"
-                        x-text="paymentOption === 'cod' ? 'Checkout COD' : 'Saya Sudah Bayar'"
+                        x-text="paymentOption === 'cod' ? 'Checkout COD' : 'Lanjut ke Pembayaran'"
                     ></button>
                 </form>
             </aside>
