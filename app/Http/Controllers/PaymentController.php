@@ -76,8 +76,11 @@ class PaymentController extends Controller
         Gate::authorize('payPayment', $payment);
 
         $payment->load(['booking.customer', 'booking.service']);
+
         return view('payments.pay', [
             'payment' => $payment,
+            'paymentChannel' => $this->paymentChannel($payment),
+            'paymentMethodLabel' => $this->paymentMethodLabel($payment),
         ]);
     }
 
@@ -86,11 +89,11 @@ class PaymentController extends Controller
         Gate::authorize('confirmPayment', $payment);
 
         $data = $request->validate([
-            'payment_method' => ['required', 'string', 'in:qris,transfer,ewallet'],
+            'payment_method' => ['nullable', 'string', 'in:qris,transfer,ewallet'],
         ]);
 
-        $paymentMethod = $data['payment_method'] === 'qris' ? Payment::METHOD_EWALLET : $data['payment_method'];
-        $notes = $data['payment_method'] === 'qris' ? 'Via: QRIS' : ($payment->notes ?? '');
+        $channel = $data['payment_method'] ?? $this->paymentChannel($payment);
+        $paymentMethod = $channel === 'transfer' ? Payment::METHOD_TRANSFER : Payment::METHOD_EWALLET;
 
         $payment->update([
             'payment_method' => $paymentMethod,
@@ -99,18 +102,23 @@ class PaymentController extends Controller
             'payment_status' => Payment::STATUS_PAID,
             'payment_date' => now(),
             'processed_by' => $request->user()->id,
-            'notes' => $notes,
+            'notes' => $this->confirmedNotes($payment, $channel),
         ]);
         DashboardBroadcast::paymentChanged($payment);
 
         return redirect()
-            ->route('payments.show', $payment)
-            ->with('success', 'Pembayaran berhasil dikonfirmasi.');
+            ->route('user.orders.success', $payment->booking)
+            ->with('success', 'Pembayaran berhasil')
+            ->with('payment_success', 'Pembayaran berhasil');
     }
 
-    public function invoice(Payment $payment): Response
+    public function invoice(Request $request, Payment $payment): Response
     {
         Gate::authorize('view', $payment);
+
+        if ($request->user()->isUser() && $payment->payment_status !== Payment::STATUS_PAID) {
+            abort(403);
+        }
 
         $payment->load(['booking.customer', 'booking.service', 'processedBy']);
         $logoPath = public_path('logo.svg');
@@ -200,5 +208,51 @@ class PaymentController extends Controller
             )
             ->orderBy('booking_code')
             ->get();
+    }
+
+    private function paymentChannel(Payment $payment): string
+    {
+        $notes = strtolower((string) $payment->notes);
+
+        if (str_contains($notes, 'payment_channel=qris') || str_contains($notes, 'qris')) {
+            return 'qris';
+        }
+
+        if (str_contains($notes, 'payment_channel=transfer') || $payment->payment_method === Payment::METHOD_TRANSFER) {
+            return 'transfer';
+        }
+
+        if (str_contains($notes, 'payment_channel=ewallet')) {
+            return 'ewallet';
+        }
+
+        if (str_contains($notes, 'payment_channel=cod') || $payment->payment_method === Payment::METHOD_CASH) {
+            return 'cod';
+        }
+
+        return $payment->payment_method === Payment::METHOD_EWALLET ? 'qris' : $payment->payment_method;
+    }
+
+    private function paymentMethodLabel(Payment $payment): string
+    {
+        return match ($this->paymentChannel($payment)) {
+            'qris' => 'QRIS',
+            'transfer' => 'Transfer Bank',
+            'ewallet' => 'E-Wallet',
+            'cod' => 'COD / Bayar di Tempat',
+            default => ucfirst($payment->payment_method),
+        };
+    }
+
+    private function confirmedNotes(Payment $payment, string $channel): string
+    {
+        $label = match ($channel) {
+            'qris' => 'QRIS',
+            'transfer' => 'Transfer Bank BCA',
+            'ewallet' => 'E-Wallet',
+            default => strtoupper($channel),
+        };
+
+        return trim("payment_channel={$channel}; Pembayaran customer dikonfirmasi via {$label}");
     }
 }

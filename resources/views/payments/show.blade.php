@@ -1,4 +1,12 @@
 <x-app-layout>
+    @php
+        $badgeStatus = Auth::user()->isUser()
+            && $payment->payment_status === \App\Models\Payment::STATUS_UNPAID
+            && $payment->payment_method !== \App\Models\Payment::METHOD_CASH
+                ? 'waiting_confirmation'
+                : $payment->payment_status;
+    @endphp
+
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -19,9 +27,11 @@
                     </a>
                 @endcan
 
-                <a href="{{ route('payments.invoice', $payment) }}">
-                    <x-primary-button type="button">Download PDF</x-primary-button>
-                </a>
+                @if (! Auth::user()->isUser() || $payment->payment_status === \App\Models\Payment::STATUS_PAID)
+                    <a href="{{ route('payments.invoice', $payment) }}">
+                        <x-primary-button type="button">Download PDF</x-primary-button>
+                    </a>
+                @endif
             </div>
         </div>
     </x-slot>
@@ -71,7 +81,7 @@
                     <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-8">
                         <dt class="text-sm font-medium text-gray-500">Status</dt>
                         <dd class="mt-1 sm:col-span-2 sm:mt-0">
-                            @include('payments._status-badge', ['status' => $payment->payment_status])
+                            @include('payments._status-badge', ['status' => $badgeStatus])
                         </dd>
                     </div>
                     <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-8">

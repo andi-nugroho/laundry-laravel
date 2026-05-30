@@ -1,108 +1,151 @@
+@php
+    $booking = $payment->booking;
+    $confirmLabel = $paymentChannel === 'transfer' ? 'Saya Sudah Transfer' : 'Saya Sudah Bayar';
+@endphp
+
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-black leading-tight text-neutral-900">
-            {{ __('Simulasi Pembayaran') }}
-        </h2>
+        <div>
+            <h2 class="text-xl font-black leading-tight text-neutral-900">
+                {{ __('Pembayaran Laundry') }}
+            </h2>
+            <p class="mt-1 text-sm font-medium text-neutral-500">Selesaikan pembayaran sebelum konfirmasi WhatsApp.</p>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="mx-auto max-w-3xl sm:px-6 lg:px-8">
-            <div class="overflow-hidden bg-white shadow-xl sm:rounded-3xl">
-                <div class="p-8 sm:p-12">
-                    {{-- Logo --}}
-                    <div class="flex justify-center mb-8">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FF6626] to-[#ff8c5a] text-white shadow-lg shadow-orange-500/30">
-                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                            </div>
-                            <span class="text-2xl font-black tracking-tight text-neutral-900">
-                                VAULT<span class="text-[#FF6626]">LAUNDRY</span>
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="text-center mb-10">
-                        <h3 class="text-sm font-bold tracking-widest uppercase text-neutral-400">Total Tagihan</h3>
-                        <p class="text-4xl font-black text-neutral-900 mt-2">Rp {{ number_format($payment->total_bill, 0, ',', '.') }}</p>
-                        <p class="text-sm font-medium text-neutral-500 mt-2">Order: {{ $payment->booking->booking_code }}</p>
-                    </div>
-
-                    <div class="grid gap-4 mb-10 text-sm bg-[#FFF9F1] p-6 rounded-2xl border border-[#E8DCCB]">
-                        <div class="flex justify-between">
-                            <span class="font-medium text-neutral-500">Payment Code</span>
-                            <span class="font-bold text-neutral-900">{{ $payment->payment_code }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="font-medium text-neutral-500">Pelanggan</span>
-                            <span class="font-bold text-neutral-900">{{ $payment->booking->customer->name ?? '-' }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="font-medium text-neutral-500">Layanan</span>
-                            <span class="font-bold text-neutral-900">{{ $payment->booking->service->name ?? '-' }}</span>
-                        </div>
-                    </div>
-
-                    <form method="POST" action="{{ route('payments.confirm', $payment) }}" x-data="{ method: 'qris' }">
-                        @csrf
-                        @method('PATCH')
-                        
-                        <h4 class="text-base font-black text-neutral-900 mb-4">Pilih Metode Pembayaran</h4>
-                        
-                        <div class="grid grid-cols-3 gap-3 mb-8">
-                            <label class="cursor-pointer">
-                                <input type="radio" name="payment_method" value="qris" x-model="method" class="peer sr-only">
-                                <div class="rounded-xl border-2 border-gray-200 p-4 text-center transition peer-checked:border-[#FF6626] peer-checked:bg-orange-50">
-                                    <div class="text-2xl mb-1">📱</div>
-                                    <div class="text-sm font-bold text-neutral-700 peer-checked:text-[#FF6626]">QRIS</div>
-                                </div>
-                            </label>
-                            <label class="cursor-pointer">
-                                <input type="radio" name="payment_method" value="transfer" x-model="method" class="peer sr-only">
-                                <div class="rounded-xl border-2 border-gray-200 p-4 text-center transition peer-checked:border-[#FF6626] peer-checked:bg-orange-50">
-                                    <div class="text-2xl mb-1">🏦</div>
-                                    <div class="text-sm font-bold text-neutral-700 peer-checked:text-[#FF6626]">Transfer</div>
-                                </div>
-                            </label>
-                            <label class="cursor-pointer">
-                                <input type="radio" name="payment_method" value="ewallet" x-model="method" class="peer sr-only">
-                                <div class="rounded-xl border-2 border-gray-200 p-4 text-center transition peer-checked:border-[#FF6626] peer-checked:bg-orange-50">
-                                    <div class="text-2xl mb-1">💳</div>
-                                    <div class="text-sm font-bold text-neutral-700 peer-checked:text-[#FF6626]">E-Wallet</div>
-                                </div>
-                            </label>
-                        </div>
-
-                        {{-- Instructions --}}
-                        <div class="mb-8 rounded-2xl bg-gray-50 p-6 text-center border border-gray-100">
-                            <div x-show="method === 'qris'">
-                                <div class="w-48 h-48 bg-white border-2 border-dashed border-gray-300 rounded-xl mx-auto flex items-center justify-center mb-4">
-                                    <span class="text-gray-400 font-black text-xl">DUMMY QR</span>
-                                </div>
-                                <p class="text-sm font-bold text-neutral-900">VAULTLAUNDRY QRIS</p>
-                                <p class="text-xs text-neutral-500 mt-1">Scan QR code di atas menggunakan aplikasi e-wallet atau m-banking Anda.</p>
-                            </div>
-                            
-                            <div x-show="method === 'transfer'" style="display: none;">
-                                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full mx-auto flex items-center justify-center mb-4 text-2xl">🏦</div>
-                                <p class="text-sm font-medium text-neutral-500">Bank BCA</p>
-                                <p class="text-2xl font-black text-neutral-900 mt-1 tracking-wider">1234 5678 90</p>
-                                <p class="text-sm font-bold text-neutral-700 mt-2">a.n. VAULTLAUNDRY</p>
-                            </div>
-                            
-                            <div x-show="method === 'ewallet'" style="display: none;">
-                                <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full mx-auto flex items-center justify-center mb-4 text-2xl">📱</div>
-                                <p class="text-sm font-medium text-neutral-500">OVO / GoPay / Dana</p>
-                                <p class="text-2xl font-black text-neutral-900 mt-1 tracking-wider">0812-0000-2026</p>
-                                <p class="text-sm font-bold text-neutral-700 mt-2">a.n. VAULTLAUNDRY</p>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-sm text-sm font-black text-white bg-[#FF6626] hover:bg-[#e55c22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF6626] transition-colors">
-                            Saya Sudah Bayar
-                        </button>
-                    </form>
+    <div
+        class="py-6"
+        x-data="{
+            remaining: 15 * 60,
+            tick() {
+                if (this.remaining > 0) {
+                    this.remaining--;
+                }
+            },
+            timeLeft() {
+                const minutes = String(Math.floor(this.remaining / 60)).padStart(2, '0');
+                const seconds = String(this.remaining % 60).padStart(2, '0');
+                return `${minutes}:${seconds}`;
+            },
+        }"
+        x-init="setInterval(() => tick(), 1000)"
+    >
+        <div class="mx-auto max-w-5xl space-y-5 sm:px-6 lg:px-8">
+            @if (session('success'))
+                <div class="rounded-2xl border border-green-200 bg-green-50 p-4 text-sm font-semibold text-green-700">
+                    {{ session('success') }}
                 </div>
-            </div>
+            @endif
+
+            <section class="overflow-hidden rounded-[2rem] border border-[#E8DCCB] bg-[#FFF9F1] shadow-[0_24px_65px_rgba(24,21,18,0.10)]">
+                <div class="grid gap-0 lg:grid-cols-[minmax(0,1fr)_360px]">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                            <div class="flex items-center gap-3">
+                                <img src="{{ asset('logo.svg') }}" alt="VAULTLAUNDRY" class="h-12 w-12 rounded-2xl">
+                                <div>
+                                    <div class="text-2xl font-black tracking-tight text-neutral-950">
+                                        VAULT<span class="text-[#FF6626]">LAUNDRY</span>
+                                    </div>
+                                    <p class="text-xs font-bold uppercase tracking-[0.16em] text-neutral-400">Mock Payment</p>
+                                </div>
+                            </div>
+
+                            @include('payments._status-badge', [
+                                'status' => 'waiting_confirmation',
+                                'displayStatus' => 'waiting confirmation',
+                            ])
+                        </div>
+
+                        <div class="mt-8 rounded-3xl border border-[#E8DCCB] bg-[#FBF3E7] p-5">
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <x-card-field label="Payment Code" :value="$payment->payment_code" />
+                                <x-card-field label="Booking Code" :value="$booking?->booking_code ?? '-'" />
+                                <x-card-field label="Customer" :value="$booking?->customer?->name ?? '-'" />
+                                <x-card-field label="Layanan" :value="$booking?->service?->name ?? '-'" />
+                            </div>
+
+                            <div class="mt-5 rounded-2xl border border-[#E8DCCB] bg-[#FFF9F1] p-5">
+                                <div class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-neutral-400">Total Tagihan</div>
+                                <div class="mt-2 text-3xl font-black text-neutral-950">Rp {{ number_format($payment->total_bill, 0, ',', '.') }}</div>
+                                <div class="mt-3 flex flex-wrap items-center gap-2 text-sm font-bold text-neutral-500">
+                                    <span>Metode: {{ $paymentMethodLabel }}</span>
+                                    <span class="h-1 w-1 rounded-full bg-neutral-300"></span>
+                                    <span>Sisa waktu: <span class="text-[#FF6626]" x-text="timeLeft()"></span></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            @if ($paymentChannel === 'qris')
+                                <div class="rounded-3xl border border-[#E8DCCB] bg-[#FFF9F1] p-6 text-center">
+                                    <div class="mx-auto grid h-56 w-56 grid-cols-7 gap-1 rounded-3xl border-8 border-white bg-white p-4 shadow-[0_18px_45px_rgba(24,21,18,0.10)]">
+                                        @for ($i = 0; $i < 49; $i++)
+                                            <span class="{{ in_array($i, [0,1,2,7,9,14,15,16,4,5,6,11,13,18,19,20,28,29,30,35,37,42,43,44,45,47,48,22,24,31,33,38,40]) ? 'bg-neutral-950' : 'bg-[#F4E8D8]' }} rounded-[0.18rem]"></span>
+                                        @endfor
+                                    </div>
+                                    <h3 class="mt-6 text-lg font-black text-neutral-950">Scan QRIS untuk menyelesaikan pembayaran</h3>
+                                    <p class="mt-2 text-sm font-semibold text-neutral-500">Gunakan aplikasi m-banking atau e-wallet, lalu klik tombol konfirmasi setelah pembayaran berhasil.</p>
+                                </div>
+                            @elseif ($paymentChannel === 'transfer')
+                                <div class="rounded-3xl border border-[#E8DCCB] bg-[#FFF9F1] p-6">
+                                    <div class="rounded-3xl border border-blue-100 bg-blue-50 p-5">
+                                        <div class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-blue-500">Transfer Bank</div>
+                                        <h3 class="mt-2 text-2xl font-black text-neutral-950">Bank BCA</h3>
+                                        <div class="mt-5 rounded-2xl border border-blue-100 bg-white/70 p-4">
+                                            <div class="text-xs font-black uppercase tracking-[0.14em] text-neutral-400">Nomor Rekening</div>
+                                            <div class="mt-1 font-mono text-3xl font-black tracking-wide text-neutral-950">1234567890</div>
+                                        </div>
+                                        <p class="mt-4 text-sm font-bold text-neutral-700">Atas nama: VAULTLAUNDRY</p>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="rounded-3xl border border-[#E8DCCB] bg-[#FFF9F1] p-6">
+                                    <div class="grid gap-3 sm:grid-cols-3">
+                                        @foreach (['Dana', 'OVO', 'GoPay'] as $wallet)
+                                            <div class="rounded-3xl border border-[#E8DCCB] bg-[#FBF3E7] p-5 text-center">
+                                                <div class="text-lg font-black text-neutral-950">{{ $wallet }}</div>
+                                                <div class="mt-3 font-mono text-sm font-black text-[#FF6626]">0812-0000-2026</div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <p class="mt-5 text-center text-sm font-semibold text-neutral-500">Transfer ke salah satu e-wallet atas nama VAULTLAUNDRY.</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <aside class="border-t border-[#E8DCCB] bg-[#FBF3E7] p-6 lg:border-l lg:border-t-0">
+                        <div class="lg:sticky lg:top-28">
+                            <h3 class="text-lg font-black text-neutral-950">Konfirmasi Pembayaran</h3>
+                            <p class="mt-2 text-sm font-semibold text-neutral-500">
+                                Klik konfirmasi hanya setelah pembayaran benar-benar dilakukan.
+                            </p>
+
+                            <form method="POST" action="{{ route('payments.confirm', $payment) }}" class="mt-6">
+                                @csrf
+                                @method('PATCH')
+                                <input type="hidden" name="payment_method" value="{{ $paymentChannel }}">
+
+                                <button type="submit" class="w-full rounded-2xl bg-[#FF6626] px-5 py-3 text-sm font-black text-white shadow-lg shadow-orange-500/25 transition hover:-translate-y-0.5 hover:bg-[#d94b12]">
+                                    {{ $confirmLabel }}
+                                </button>
+                            </form>
+
+                            <a href="{{ route('bookings.show', $booking) }}" class="mt-3 inline-flex w-full items-center justify-center rounded-2xl border border-[#E8DCCB] bg-[#FFF9F1] px-5 py-3 text-sm font-black text-neutral-800 transition hover:-translate-y-0.5 hover:border-[#FF6626]/40 hover:text-[#FF6626]">
+                                Bayar Nanti
+                            </a>
+
+                            <div class="mt-6 rounded-3xl border border-amber-200 bg-amber-50 p-4">
+                                <div class="text-sm font-black text-amber-800">Status sementara</div>
+                                <p class="mt-1 text-xs font-semibold leading-5 text-amber-700">
+                                    Payment masih tercatat unpaid sampai tombol konfirmasi pembayaran ditekan.
+                                </p>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </section>
         </div>
     </div>
 </x-app-layout>

@@ -60,18 +60,28 @@ class UserOrderController extends Controller
         $payment = $this->createPaymentForOrder($booking, $data['payment_option'], $totalPrice);
         DashboardBroadcast::paymentChanged($payment);
 
+        if ($data['payment_option'] === 'cod') {
+            return redirect()
+                ->route('user.orders.success', $booking)
+                ->with('success', 'Pesanan berhasil dibuat')
+                ->with('payment_pending', 'Menunggu Pembayaran Saat Pengambilan');
+        }
+
         return redirect()
-            ->route('user.orders.success', $booking)
-            ->with('success', 'Pesanan berhasil dibuat')
-            ->with('payment_success', $data['payment_option'] === 'cod' ? null : 'Pembayaran berhasil');
+            ->route('payments.pay', $payment)
+            ->with('success', 'Pesanan berhasil dibuat. Silakan lanjutkan pembayaran.');
     }
 
     public function success(Booking $booking): View
     {
         Gate::authorize('view', $booking);
 
+        $booking->load(['customer', 'service', 'payment']);
+
         return view('user-orders.success', [
-            'booking' => $booking->load(['customer', 'service', 'payment']),
+            'booking' => $booking,
+            'paymentChannel' => $booking->payment ? $this->paymentChannel($booking->payment) : null,
+            'paymentMethodLabel' => $booking->payment ? $this->paymentMethodLabel($booking->payment) : '-',
         ]);
     }
 
@@ -98,22 +108,57 @@ class UserOrderController extends Controller
             default => Payment::METHOD_CASH,
         };
 
-        $amountPaid = $paymentOption === 'cod' ? 0 : $totalPrice;
-
         return Payment::create([
             'booking_id' => $booking->id,
             'payment_code' => Payment::generatePaymentCode(now()->toDateString()),
             'payment_date' => now(),
             'payment_method' => $method,
-            'amount_paid' => $amountPaid,
+            'amount_paid' => 0,
             'total_bill' => $totalPrice,
-            'change_amount' => max($amountPaid - $totalPrice, 0),
-            'payment_status' => Payment::statusForAmount($amountPaid, $totalPrice),
-            'notes' => $paymentOption === 'cod'
-                ? 'COD / Bayar di Tempat'
-                : 'Pembayaran customer via '.strtoupper($paymentOption),
+            'change_amount' => 0,
+            'payment_status' => Payment::STATUS_UNPAID,
+            'notes' => match ($paymentOption) {
+                'qris' => 'payment_channel=qris; QRIS mock payment',
+                'transfer' => 'payment_channel=transfer; Transfer Bank BCA',
+                'ewallet' => 'payment_channel=ewallet; E-Wallet mock payment',
+                default => 'payment_channel=cod; COD / Bayar di Tempat',
+            },
             'processed_by' => null,
         ]);
+    }
+
+    private function paymentChannel(Payment $payment): string
+    {
+        $notes = strtolower((string) $payment->notes);
+
+        if (str_contains($notes, 'payment_channel=qris') || str_contains($notes, 'qris')) {
+            return 'qris';
+        }
+
+        if (str_contains($notes, 'payment_channel=transfer') || $payment->payment_method === Payment::METHOD_TRANSFER) {
+            return 'transfer';
+        }
+
+        if (str_contains($notes, 'payment_channel=ewallet')) {
+            return 'ewallet';
+        }
+
+        if (str_contains($notes, 'payment_channel=cod') || $payment->payment_method === Payment::METHOD_CASH) {
+            return 'cod';
+        }
+
+        return $payment->payment_method === Payment::METHOD_EWALLET ? 'ewallet' : $payment->payment_method;
+    }
+
+    private function paymentMethodLabel(Payment $payment): string
+    {
+        return match ($this->paymentChannel($payment)) {
+            'qris' => 'QRIS',
+            'transfer' => 'Transfer Bank',
+            'ewallet' => 'E-Wallet',
+            'cod' => 'COD / Bayar di Tempat',
+            default => ucfirst($payment->payment_method),
+        };
     }
 
     private function generateBookingCode(string $bookingDate): string
