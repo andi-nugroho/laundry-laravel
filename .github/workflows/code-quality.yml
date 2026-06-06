@@ -1,0 +1,83 @@
+name: Code Quality
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Laravel Static Checks
+    runs-on: ubuntu-latest
+
+    env:
+      APP_ENV: testing
+      APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: laravel_test
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      CACHE_STORE: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
+      MAIL_MAILER: array
+      BROADCAST_CONNECTION: log
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, ctype, json, bcmath, curl, fileinfo, openssl, pdo, pdo_pgsql, pgsql, tokenizer, dom, gd, zip
+          coverage: none
+          tools: composer:v2
+        env:
+          fail-fast: true
+
+      - name: Validate Composer configuration
+        run: composer validate --strict
+
+      - name: Prepare Laravel environment
+        run: cp .env.example .env
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Generate application key
+        run: php artisan key:generate --force
+
+      - name: Check PHP syntax
+        shell: bash
+        run: |
+          mapfile -d '' files < <(find app routes database config -type f -name '*.php' -print0)
+          for file in "${files[@]}"; do
+            php -l "$file"
+          done
+
+      - name: List application routes
+        run: php artisan route:list
+
+      - name: Validate Blade view cache
+        run: |
+          php artisan view:cache
+          php artisan view:clear
+
+      - name: Validate configuration cache
+        run: |
+          php artisan config:cache
+          php artisan config:clear
