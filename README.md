@@ -11,6 +11,9 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
 [![Alpine.js](https://img.shields.io/badge/Alpine.js-3-77C1D2?style=for-the-badge&logo=alpine.js&logoColor=white)](https://alpinejs.dev)
 
+[![CI](https://github.com/andi-nugroho/laundry-laravel/actions/workflows/ci.yml/badge.svg)](https://github.com/andi-nugroho/laundry-laravel/actions/workflows/ci.yml)
+[![Security](https://github.com/andi-nugroho/laundry-laravel/actions/workflows/security.yml/badge.svg)](https://github.com/andi-nugroho/laundry-laravel/actions/workflows/security.yml)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 [![GitHub](https://img.shields.io/badge/Repository-andi--nugroho/laundry--laravel-181717?style=for-the-badge&logo=github)](https://github.com/andi-nugroho/laundry-laravel)
 
@@ -46,6 +49,18 @@ VAULTLAUNDRY helps laundry businesses manage customers, bookings, wash status, p
 | PDF | barryvdh/laravel-dompdf |
 | Realtime | [Laravel Reverb](https://laravel.com/docs/reverb) + Laravel Echo |
 | Dev environment | Laravel Sail / Docker Compose (optional) |
+
+## Continuous Integration
+
+GitHub Actions menjalankan application test suite dengan **PHP 8.3**, **Node.js 22**, dan service **PostgreSQL 16**. CI tidak menggunakan SQLite sehingga migration dan query diuji pada database engine yang sama dengan environment utama project.
+
+Workflow yang tersedia:
+
+- `CI`: install dependency, migrate PostgreSQL, build frontend, dan menjalankan Laravel tests.
+- `Security`: menjalankan `composer audit` dan `npm audit --audit-level=high`.
+- `Code Quality`: validasi Composer, PHP syntax, route, Blade view cache, dan Laravel config cache.
+
+File `database/schema.sql` berformat MySQL/MariaDB tetap dipertahankan hanya sebagai dokumentasi dan alternatif manual import. File tersebut bukan database utama dan tidak digunakan oleh CI.
 
 ## Repository
 
