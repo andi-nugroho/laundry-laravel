@@ -14,9 +14,6 @@
 [![CI](https://github.com/andi-nugroho/laundry-laravel/actions/workflows/ci.yml/badge.svg)](https://github.com/andi-nugroho/laundry-laravel/actions/workflows/ci.yml)
 [![Security](https://github.com/andi-nugroho/laundry-laravel/actions/workflows/security.yml/badge.svg)](https://github.com/andi-nugroho/laundry-laravel/actions/workflows/security.yml)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
-[![GitHub](https://img.shields.io/badge/Repository-andi--nugroho/laundry--laravel-181717?style=for-the-badge&logo=github)](https://github.com/andi-nugroho/laundry-laravel)
-
 </div>
 
 ---
@@ -49,6 +46,10 @@ VAULTLAUNDRY helps laundry businesses manage customers, bookings, wash status, p
 | PDF | barryvdh/laravel-dompdf |
 | Realtime | [Laravel Reverb](https://laravel.com/docs/reverb) + Laravel Echo |
 | Dev environment | Laravel Sail / Docker Compose (optional) |
+
+## Database Documentation
+
+Rancangan database, Entity Relationship Diagram (ERD), relasi antar tabel, dan alur bisnis secara lengkap dapat dilihat di dokumen **[database/erd.md](database/erd.md)**.
 
 ## Continuous Integration
 
