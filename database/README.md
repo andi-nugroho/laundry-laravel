@@ -1,28 +1,20 @@
-# VAULTLAUNDRY Database Notes
+# VAULTLAUNDRY - Database Documentation
 
-Dokumen ini merangkum relasi database aplikasi saat ini. Struktur detail ada di `schema.sql`, sedangkan sumber kebenaran tetap Laravel migrations di `database/migrations`.
+Selamat datang di direktori dokumentasi database proyek VAULTLAUNDRY. Direktori ini menyimpan skema, struktur, dan migrasi untuk database aplikasi.
 
-## ERD Text Summary
+## Struktur Direktori
 
-```text
-Users
- |-- Customers
- |-- Bookings
- |   |-- Services
- |   `-- Payments
- `-- Payments (processed_by)
-```
+- `migrations/` : Berisi file migrasi database Laravel yang merupakan **Source of Truth** dari struktur tabel.
+- `schema.sql` : Skema manual dalam bentuk SQL yang ditujukan untuk MySQL/MariaDB (digunakan untuk referensi dan dokumentasi).
+- `erd.md` : Dokumentasi desain database, mencakup Entity Relationship Diagram (ERD), flow bisnis, dan penjelasan lengkap tabel.
 
-## Relasi Utama
+## Dokumentasi ERD
 
-- `users.id` memiliki banyak `bookings.user_id`.
-- `users.id` memiliki satu/banyak `customers.user_id`.
-- `users.id` memproses banyak `payments.processed_by`.
-- `customers.id` memiliki banyak `bookings.customer_id`.
-- `services.id` memiliki banyak `bookings.service_id`.
-- `bookings.id` memiliki satu `payments.booking_id`.
+Untuk melihat rincian tabel, relasi (relationship), alur bisnis, dan visualisasi ERD, silakan buka:
+👉 **[Entity Relationship Diagram (ERD)](erd.md)**
 
-## Catatan Invoice dan Report
+## Catatan Penting
 
-- Invoice tidak memiliki tabel fisik. Nota PDF dibuat dari data `payments`, `bookings`, `customers`, `services`, dan `users` sebagai kasir atau pemroses.
-- Report tidak memiliki tabel fisik. Laporan transaksi dan pendapatan dihitung langsung dari query `payments` beserta relasi booking/customer/service.
+1. `schema.sql` adalah dokumentasi/manual import MySQL/MariaDB.
+2. Source of truth tetap **Laravel migration**.
+3. **PostgreSQL** adalah database utama yang disarankan untuk environment development.
