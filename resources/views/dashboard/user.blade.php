@@ -14,7 +14,7 @@
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8" x-data="dashboardRealtime()" x-init="init()">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8" data-dashboard-realtime x-data="dashboardRealtime()" x-init="init()">
             <x-dashboard-realtime-bar />
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

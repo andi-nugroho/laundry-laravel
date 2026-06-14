@@ -15,14 +15,14 @@
 
 <div x-data="{ mobileOpen: false }">
     <aside
-        class="hidden border-r border-black/10 bg-[#FFF9F1]/92 shadow-xl shadow-neutral-950/5 backdrop-blur-xl transition-all duration-300 ease-out lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:flex-col"
+        class="hidden border-r border-black/10 bg-[#FFF9F1]/92 shadow-xl shadow-neutral-950/5 backdrop-blur-xl transition-[width] duration-200 ease-out lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:flex-col"
         :class="sidebarCollapsed ? 'lg:w-20' : 'lg:w-64'"
     >
-        <div class="flex h-full min-w-0 flex-col transition-all duration-300" :class="sidebarCollapsed ? 'px-3 py-5' : 'px-4 py-6'">
+        <div class="flex h-full min-w-0 flex-col transition-[padding] duration-200" :class="sidebarCollapsed ? 'px-3 py-5' : 'px-4 py-6'">
             <div class="flex items-center gap-2" :class="sidebarCollapsed ? 'flex-col justify-center gap-3' : 'justify-between'">
                 <a href="{{ route($dashboardRoute) }}" class="flex min-w-0 items-center gap-3 rounded-2xl py-2" :class="sidebarCollapsed ? 'justify-center' : 'px-1'">
                     <x-application-logo class="h-11 w-11 shrink-0 rounded-xl" />
-                    <div class="min-w-0" x-show="! sidebarCollapsed" x-transition.opacity>
+                    <div class="min-w-0" x-show="! sidebarCollapsed">
                         <div class="truncate text-sm font-black tracking-[0.18em] text-neutral-950">VAULTLAUNDRY</div>
                         <div class="mt-0.5 truncate text-xs font-semibold uppercase tracking-widest text-[#FF6626]">{{ $user->role }}</div>
                     </div>
@@ -35,7 +35,7 @@
                     aria-label="Toggle sidebar"
                     data-sidebar-toggle
                 >
-                    <svg class="h-4 w-4 transition-transform duration-300" :class="sidebarCollapsed ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="h-4 w-4 transition-transform duration-200" :class="sidebarCollapsed ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M15 19l-7-7 7-7" />
                     </svg>
                 </button>
@@ -45,18 +45,18 @@
                 @include($navPartial)
             </nav>
 
-            <div class="mt-6 rounded-[1.35rem] border border-black/10 bg-[#FAF4EA]/85 transition-all duration-300" :class="sidebarCollapsed ? 'p-2' : 'p-4'">
+            <div class="mt-6 rounded-[1.35rem] border border-black/10 bg-[#FAF4EA]/85 transition-[padding] duration-200" :class="sidebarCollapsed ? 'p-2' : 'p-4'">
                 <div class="flex items-center gap-3" :class="sidebarCollapsed ? 'justify-center' : ''">
                     <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#FF6626] text-sm font-black uppercase text-white">
                         {{ str($user->name)->substr(0, 1) }}
                     </div>
-                    <div class="min-w-0 flex-1" x-show="! sidebarCollapsed" x-transition.opacity>
+                    <div class="min-w-0 flex-1" x-show="! sidebarCollapsed">
                         <div class="truncate text-sm font-black text-neutral-950">{{ $user->name }}</div>
                         <div class="truncate text-xs font-medium text-neutral-500">{{ $user->email }}</div>
                     </div>
                 </div>
 
-                <div class="mt-4 grid grid-cols-2 gap-2" x-show="! sidebarCollapsed" x-transition.opacity>
+                <div class="mt-4 grid grid-cols-2 gap-2" x-show="! sidebarCollapsed">
                     <a href="{{ route('profile.edit') }}" class="rounded-full border border-black/10 bg-[#fffaf4] px-3 py-2 text-center text-xs font-bold text-neutral-700 transition hover:border-[#FF6626]/40 hover:text-[#FF6626]">
                         Profile
                     </a>
@@ -68,7 +68,7 @@
                     </form>
                 </div>
 
-                <div class="mt-3 space-y-2" x-show="sidebarCollapsed" x-transition.opacity>
+                <div class="mt-3 space-y-2" x-show="sidebarCollapsed">
                     <a href="{{ route('profile.edit') }}" class="flex h-10 w-full items-center justify-center rounded-2xl border border-black/10 bg-[#fffaf4] text-xs font-black text-neutral-700 transition hover:border-[#FF6626]/40 hover:text-[#FF6626]" title="Profile">
                         <svg class="h-[17px] w-[17px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0Zm-10 12a6 6 0 0 1 12 0" />
@@ -108,19 +108,12 @@
     <div x-show="mobileOpen" class="fixed inset-0 z-50 lg:hidden" style="display: none;">
         <div
             x-show="mobileOpen"
-            x-transition.opacity
             class="absolute inset-0 bg-neutral-950/40 backdrop-blur-sm"
             @click="mobileOpen = false"
         ></div>
 
         <aside
             x-show="mobileOpen"
-            x-transition:enter="transition ease-out duration-300"
-            x-transition:enter-start="-translate-x-full"
-            x-transition:enter-end="translate-x-0"
-            x-transition:leave="transition ease-in duration-200"
-            x-transition:leave-start="translate-x-0"
-            x-transition:leave-end="-translate-x-full"
             class="relative flex h-full w-[min(22rem,calc(100vw-2rem))] flex-col border-r border-black/10 bg-[#FFF9F1] p-5 shadow-2xl"
         >
             <div class="flex items-center justify-between gap-4">

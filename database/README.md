@@ -1,20 +1,22 @@
 # VAULTLAUNDRY - Database Documentation
 
-Selamat datang di direktori dokumentasi database proyek VAULTLAUNDRY. Direktori ini menyimpan skema, struktur, dan migrasi untuk database aplikasi.
+Direktori ini menyimpan skema, dokumentasi ERD, dan migration database aplikasi VAULTLAUNDRY.
 
 ## Struktur Direktori
 
-- `migrations/` : Berisi file migrasi database Laravel yang merupakan **Source of Truth** dari struktur tabel.
-- `schema.sql` : Skema manual dalam bentuk SQL yang ditujukan untuk MySQL/MariaDB (digunakan untuk referensi dan dokumentasi).
-- `erd.md` : Dokumentasi desain database, mencakup Entity Relationship Diagram (ERD), flow bisnis, dan penjelasan lengkap tabel.
+- `migrations/`: Source of truth struktur database Laravel.
+- `schema.sql`: Dokumentasi dan referensi manual import MySQL/MariaDB.
+- `erd.md`: Dokumentasi desain database, relasi, dan alur bisnis.
+- `Rancangan_ERD_VAULTLAUNDRY.docx`: Dokumen Word rancangan ERD yang siap diedit.
+- `erd-vaultlaundry.mmd`: Source code Mermaid untuk ERD inti.
+- `erd-vaultlaundry.png`: Diagram visual ERD beresolusi tinggi.
 
 ## Dokumentasi ERD
 
-Untuk melihat rincian tabel, relasi (relationship), alur bisnis, dan visualisasi ERD, silakan buka:
-👉 **[Entity Relationship Diagram (ERD)](erd.md)**
+Lihat [Entity Relationship Diagram (ERD)](erd.md) untuk penjelasan tabel, relasi, dan alur data.
 
 ## Catatan Penting
 
-1. `schema.sql` adalah dokumentasi/manual import MySQL/MariaDB.
-2. Source of truth tetap **Laravel migration**.
-3. **PostgreSQL** adalah database utama yang disarankan untuk environment development.
+1. Laravel migration tetap menjadi source of truth.
+2. PostgreSQL adalah database utama untuk development dan CI.
+3. `schema.sql` hanya digunakan sebagai dokumentasi atau alternatif manual import MySQL/MariaDB.

@@ -127,12 +127,12 @@
                                 @method('PATCH')
                                 <input type="hidden" name="payment_method" value="{{ $paymentChannel }}">
 
-                                <button type="submit" class="w-full rounded-2xl bg-[#FF6626] px-5 py-3 text-sm font-black text-white shadow-lg shadow-orange-500/25 transition hover:-translate-y-0.5 hover:bg-[#d94b12]">
+                                <button type="submit" class="w-full rounded-2xl bg-[#FF6626] px-5 py-3 text-sm font-black text-white shadow-lg shadow-orange-500/25 transition-colors duration-200 hover:bg-[#d94b12]">
                                     {{ $confirmLabel }}
                                 </button>
                             </form>
 
-                            <a href="{{ route('bookings.show', $booking) }}" class="mt-3 inline-flex w-full items-center justify-center rounded-2xl border border-[#E8DCCB] bg-[#FFF9F1] px-5 py-3 text-sm font-black text-neutral-800 transition hover:-translate-y-0.5 hover:border-[#FF6626]/40 hover:text-[#FF6626]">
+                            <a href="{{ route('bookings.show', $booking) }}" class="mt-3 inline-flex w-full items-center justify-center rounded-2xl border border-[#E8DCCB] bg-[#FFF9F1] px-5 py-3 text-sm font-black text-neutral-800 transition-colors duration-200 hover:border-[#FF6626]/40 hover:text-[#FF6626]">
                                 Bayar Nanti
                             </a>
 

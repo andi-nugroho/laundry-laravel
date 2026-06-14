@@ -94,10 +94,10 @@
                     @endif
 
                     <div class="mt-6 flex flex-col gap-3 sm:flex-row">
-                        <a href="{{ $waUrl }}" target="_blank" rel="noopener" class="inline-flex flex-1 items-center justify-center rounded-2xl bg-[#25D366] px-5 py-3 text-sm font-black text-white shadow-lg shadow-green-500/20 transition hover:-translate-y-0.5 hover:bg-[#1fb85a]">
+                        <a href="{{ $waUrl }}" target="_blank" rel="noopener" class="inline-flex flex-1 items-center justify-center rounded-2xl bg-[#25D366] px-5 py-3 text-sm font-black text-white shadow-lg shadow-green-500/20 transition-colors duration-200 hover:bg-[#1fb85a]">
                             Konfirmasi via WhatsApp
                         </a>
-                        <a href="{{ route('user.status-cucian') }}" class="inline-flex flex-1 items-center justify-center rounded-2xl border border-[#E8DCCB] bg-[#FFF9F1] px-5 py-3 text-sm font-black text-neutral-800 transition hover:-translate-y-0.5 hover:border-[#FF6626]/40 hover:text-[#FF6626]">
+                        <a href="{{ route('user.status-cucian') }}" class="inline-flex flex-1 items-center justify-center rounded-2xl border border-[#E8DCCB] bg-[#FFF9F1] px-5 py-3 text-sm font-black text-neutral-800 transition-colors duration-200 hover:border-[#FF6626]/40 hover:text-[#FF6626]">
                             Lihat Status Cucian
                         </a>
                     </div>
