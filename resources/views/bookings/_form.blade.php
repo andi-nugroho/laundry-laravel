@@ -25,7 +25,7 @@
             @foreach ($services as $service)
                 <label class="cursor-pointer relative block h-full">
                     <input type="radio" value="{{ $service->id }}" x-model="selectedServiceId" class="peer sr-only">
-                    <div class="flex h-full flex-col rounded-2xl border-2 border-gray-200 bg-white p-5 transition-all duration-200 hover:border-gray-300 peer-checked:border-[#FF6626] peer-checked:bg-orange-50/50 peer-checked:shadow-sm">
+                    <div class="flex h-full flex-col rounded-2xl border-2 border-gray-200 bg-white p-5 transition-[border-color,background-color,box-shadow] duration-200 hover:border-gray-300 peer-checked:border-[#FF6626] peer-checked:bg-orange-50/50 peer-checked:shadow-sm">
                         <div class="flex items-start justify-between">
                             <div class="flex h-12 w-12 items-center justify-center rounded-xl text-2xl transition-colors"
                                  :class="selectedServiceId == '{{ $service->id }}' ? 'bg-[#FF6626] text-white shadow-lg shadow-orange-500/30' : 'bg-gray-100 text-gray-500'">

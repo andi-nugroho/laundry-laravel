@@ -68,7 +68,7 @@ $iconClasses = ($active ?? false)
             @endswitch
         </svg>
     </span>
-    <span class="min-w-0 truncate" x-show="! sidebarCollapsed" x-transition.opacity>
+    <span class="min-w-0 truncate" x-show="! sidebarCollapsed">
         {{ $slot }}
     </span>
 </a>

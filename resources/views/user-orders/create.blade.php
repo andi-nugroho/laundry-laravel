@@ -73,7 +73,7 @@
                     <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                         @forelse ($services as $service)
                             <article
-                                class="group rounded-3xl border p-4 shadow-[0_14px_34px_rgba(24,21,18,0.06)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_20px_44px_rgba(24,21,18,0.10)]"
+                                class="group rounded-3xl border p-4 shadow-[0_14px_34px_rgba(24,21,18,0.06)] transition-[border-color,background-color] duration-200"
                                 :class="selected && selected.id === {{ $service->id }} ? 'border-[#FF6626] bg-[#FFF3E8]' : 'border-[#E8DCCB] bg-[#FFF9F1]'"
                             >
                                 <div class="flex items-start justify-between gap-3">
@@ -181,7 +181,7 @@
 
                     <button
                         type="submit"
-                        class="mt-5 w-full rounded-2xl bg-[#FF6626] px-5 py-3 text-sm font-black text-white shadow-lg shadow-orange-500/25 transition hover:-translate-y-0.5 hover:bg-[#d94b12] disabled:cursor-not-allowed disabled:opacity-50"
+                        class="mt-5 w-full rounded-2xl bg-[#FF6626] px-5 py-3 text-sm font-black text-white shadow-lg shadow-orange-500/25 transition-colors duration-200 hover:bg-[#d94b12] disabled:cursor-not-allowed disabled:opacity-50"
                         :disabled="! selected || Number(weight || 0) <= 0"
                         x-text="paymentOption === 'cod' ? 'Checkout COD' : 'Lanjut ke Pembayaran'"
                     ></button>

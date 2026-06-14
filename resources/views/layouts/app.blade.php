@@ -54,7 +54,7 @@
         >
             <div class="fixed inset-x-0 top-0 z-[9999] h-1 bg-transparent" aria-hidden="true" data-page-loading-bar>
                 <div
-                    class="h-full bg-[#FF6626] shadow-[0_0_18px_rgba(255,102,38,0.45)] transition-all duration-500 ease-out"
+                    class="h-full bg-[#FF6626] shadow-[0_0_18px_rgba(255,102,38,0.45)] transition-[width,opacity] duration-200 ease-out"
                     :class="pageLoading ? 'w-11/12 opacity-100' : 'w-0 opacity-0'"
                 ></div>
             </div>
@@ -62,7 +62,7 @@
             @include('layouts.navigation')
 
             <div
-                class="min-w-0 transition-[padding] duration-300 ease-out"
+                class="min-w-0 transition-[padding] duration-200 ease-out"
                 :class="sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'"
             >
                 @isset($header)

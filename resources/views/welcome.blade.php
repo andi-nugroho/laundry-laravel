@@ -11,9 +11,9 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700|instrument-sans:400,500,600,700|instrument-serif:400|jetbrains-mono:400,500,600&display=swap" rel="stylesheet" />
 
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite(['resources/css/public.css', 'resources/js/public.js'])
     </head>
-    <body class="bg-[#FAF4EA] font-sans text-neutral-950 antialiased">
+    <body class="vault-public bg-[#FAF4EA] font-sans text-neutral-950 antialiased">
         <main class="noise-overlay relative min-h-screen overflow-hidden">
             <div class="absolute inset-0 laundry-grid opacity-70"></div>
 
@@ -111,7 +111,7 @@
                         </div>
                     </div>
 
-                    <div class="reveal reveal-delay-200 vault-hero-visual" aria-hidden="true">
+                    <div class="reveal-fade reveal-delay-200 vault-hero-visual" aria-hidden="true">
                         <div class="vault-hero-glow"></div>
                         <div class="vault-hero-glow-secondary"></div>
 

@@ -1,0 +1,75 @@
+erDiagram
+    USERS o|--o| CUSTOMERS : "owns customer profile"
+    USERS o|--o{ BOOKINGS : "creates"
+    USERS o|--o{ PAYMENTS : "processes via processed_by"
+    CUSTOMERS o|--o{ BOOKINGS : "places"
+    SERVICES ||--o{ BOOKINGS : "selected for"
+    BOOKINGS ||--o| PAYMENTS : "has payment"
+
+    USERS {
+        bigint id PK
+        varchar name
+        varchar email UK
+        timestamp email_verified_at "nullable"
+        varchar password
+        varchar role "default: user"
+        varchar remember_token "nullable"
+        timestamp created_at "nullable"
+        timestamp updated_at "nullable"
+    }
+
+    CUSTOMERS {
+        bigint id PK
+        bigint user_id FK "nullable, ON DELETE SET NULL"
+        varchar name
+        varchar phone "nullable"
+        text address "nullable"
+        enum gender "nullable: male, female"
+        text notes "nullable"
+        timestamp created_at "nullable"
+        timestamp updated_at "nullable"
+    }
+
+    SERVICES {
+        bigint id PK
+        varchar name
+        text description "nullable"
+        decimal price_per_kg "10,2"
+        integer estimated_days "default: 2"
+        boolean is_active "default: true"
+        timestamp created_at "nullable"
+        timestamp updated_at "nullable"
+    }
+
+    BOOKINGS {
+        bigint id PK
+        varchar booking_code UK
+        bigint user_id FK "nullable, ON DELETE SET NULL"
+        bigint customer_id FK "nullable, ON DELETE SET NULL"
+        bigint service_id FK "ON DELETE CASCADE"
+        date booking_date
+        date estimated_finish_date "nullable"
+        decimal weight "8,2 nullable"
+        decimal total_price "12,2 default: 0"
+        enum pickup_type "antar_sendiri, pickup"
+        enum status "booking_masuk hingga dibatalkan"
+        text notes "nullable"
+        timestamp created_at "nullable"
+        timestamp updated_at "nullable"
+    }
+
+    PAYMENTS {
+        bigint id PK
+        bigint booking_id FK "ON DELETE CASCADE"
+        varchar payment_code UK
+        datetime payment_date
+        enum payment_method "cash, transfer, ewallet"
+        decimal amount_paid "12,2"
+        decimal total_bill "12,2"
+        decimal change_amount "12,2 default: 0"
+        enum payment_status "unpaid, partial, paid"
+        text notes "nullable"
+        bigint processed_by FK "nullable, ON DELETE SET NULL"
+        timestamp created_at "nullable"
+        timestamp updated_at "nullable"
+    }
