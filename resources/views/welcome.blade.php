@@ -18,13 +18,13 @@
             <div class="absolute inset-0 laundry-grid opacity-70"></div>
 
             <header
-                x-data="{ scrolled: window.scrollY > 20 }"
+                x-data="{ scrolled: window.scrollY > 20, mobileOpen: false }"
                 x-init="scrolled = window.scrollY > 20"
                 @scroll.window="scrolled = window.scrollY > 20"
                 class="fixed left-0 right-0 top-0 z-50 px-4"
             >
                 <nav
-                    class="mx-auto flex items-center justify-between transition-all duration-500 ease-out"
+                    class="relative mx-auto flex items-center justify-between transition-all duration-500 ease-out"
                     :class="scrolled
                         ? 'mt-4 h-16 max-w-6xl rounded-full border border-black/10 bg-[#FAF4EA]/85 px-4 shadow-lg shadow-neutral-950/10 backdrop-blur-xl sm:px-6'
                         : 'mt-0 h-20 max-w-7xl rounded-none border border-transparent bg-transparent px-2 shadow-none backdrop-blur-0 sm:px-6 lg:px-8'"
@@ -41,7 +41,7 @@
                         <a href="#faq" class="transition hover:text-[#FF6626]">FAQ</a>
                     </div>
 
-                    <div class="flex items-center gap-2">
+                    <div class="hidden items-center gap-2 md:flex">
                         @auth
                             <a href="{{ route(auth()->user()->dashboardRouteName()) }}" class="vault-button px-4 py-2 text-xs sm:px-5">
                                 Dashboard
@@ -58,6 +58,68 @@
                                 </a>
                             @endif
                         @endauth
+                    </div>
+
+                    <button
+                        type="button"
+                        class="group inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-transparent text-neutral-950 transition hover:border-[#FF6626]/40 hover:text-[#FF6626] focus:outline-none focus:ring-2 focus:ring-[#FF6626]/40 md:hidden"
+                        @click="mobileOpen = ! mobileOpen"
+                        :aria-expanded="mobileOpen.toString()"
+                        aria-label="Toggle navigation"
+                    >
+                        <span class="relative h-5 w-5">
+                            <span
+                                class="absolute left-0 top-0 h-0.5 w-5 rounded-full bg-current transition duration-200"
+                                :class="mobileOpen ? 'translate-y-2 rotate-45' : ''"
+                            ></span>
+                            <span
+                                class="absolute left-0 top-2 h-0.5 w-5 rounded-full bg-current transition duration-200"
+                                :class="mobileOpen ? 'opacity-0' : 'opacity-100'"
+                            ></span>
+                            <span
+                                class="absolute left-0 top-4 h-0.5 w-5 rounded-full bg-current transition duration-200"
+                                :class="mobileOpen ? '-translate-y-2 -rotate-45' : ''"
+                            ></span>
+                        </span>
+                    </button>
+
+                    <div
+                        x-show="mobileOpen"
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 -translate-y-2 scale-[0.98]"
+                        x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                        x-transition:leave-end="opacity-0 -translate-y-2 scale-[0.98]"
+                        @click.outside="mobileOpen = false"
+                        class="absolute left-0 right-0 top-full mt-3 w-full rounded-[2rem] border border-black/10 bg-[#FAF4EA]/65 p-3 shadow-xl shadow-neutral-950/10 backdrop-blur-xl md:hidden"
+                        style="display: none;"
+                    >
+                        <div class="grid gap-1 text-sm font-bold text-neutral-800">
+                            <a href="#fitur" @click="mobileOpen = false" class="rounded-2xl px-4 py-3 transition hover:bg-white/40 hover:text-[#FF6626]">Fitur</a>
+                            <a href="#alur" @click="mobileOpen = false" class="rounded-2xl px-4 py-3 transition hover:bg-white/40 hover:text-[#FF6626]">Alur</a>
+                            <a href="#layanan" @click="mobileOpen = false" class="rounded-2xl px-4 py-3 transition hover:bg-white/40 hover:text-[#FF6626]">Layanan</a>
+                            <a href="#faq" @click="mobileOpen = false" class="rounded-2xl px-4 py-3 transition hover:bg-white/40 hover:text-[#FF6626]">FAQ</a>
+
+                            <div class="my-2 border-t border-black/10"></div>
+
+                            @auth
+                                <a href="{{ route(auth()->user()->dashboardRouteName()) }}" class="rounded-2xl bg-[#FF6626] px-4 py-3 text-center text-white transition hover:bg-[#d94b12]">
+                                    Dashboard
+                                </a>
+                            @else
+                                @if (Route::has('login'))
+                                    <a href="{{ route('login') }}" class="rounded-2xl px-4 py-3 transition hover:bg-white/40 hover:text-[#FF6626]">
+                                        Login
+                                    </a>
+                                @endif
+                                @if (Route::has('register'))
+                                    <a href="{{ route('register') }}" class="rounded-2xl bg-[#FF6626] px-4 py-3 text-center text-white transition hover:bg-[#d94b12]">
+                                        Register
+                                    </a>
+                                @endif
+                            @endauth
+                        </div>
                     </div>
                 </nav>
             </header>
@@ -249,12 +311,23 @@
                             <div class="reveal reveal-delay-{{ $loop->index * 100 }} bg-[#1a1714] border border-[#2a2520] rounded-2xl transition-all duration-300 hover:border-[#FF6626]/30 overflow-hidden">
                                 <button @click="active !== {{ $index }} ? active = {{ $index }} : active = null" class="flex w-full items-center justify-between py-5 px-6 text-left transition hover:text-[#FF6626] text-white">
                                     <span class="text-base sm:text-lg font-bold text-white pr-4">{{ $faq['q'] }}</span>
-                                    <span class="ml-6 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/5 transition-colors" :class="active === {{ $index }} ? 'bg-[#FF6626] text-white' : ''">
-                                        <svg x-show="active !== {{ $index }}" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
-                                        <svg x-show="active === {{ $index }}" x-cloak class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M20 12H4"/></svg>
+                                    <span class="ml-6 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/5 transition-all duration-200 ease-out" :class="active === {{ $index }} ? 'bg-[#FF6626] text-white rotate-180' : ''">
+                                        <span class="relative h-4 w-4">
+                                            <span class="absolute left-0 top-1/2 h-0.5 w-4 -translate-y-1/2 rounded-full bg-current transition-transform duration-200 ease-out"></span>
+                                            <span class="absolute left-1/2 top-0 h-4 w-0.5 -translate-x-1/2 rounded-full bg-current transition-all duration-200 ease-out" :class="active === {{ $index }} ? 'rotate-90 opacity-0' : 'rotate-0 opacity-100'"></span>
+                                        </span>
                                     </span>
                                 </button>
-                                <div x-show="active === {{ $index }}" x-transition x-cloak>
+                                <div
+                                    x-show="active === {{ $index }}"
+                                    x-transition:enter="transition ease-out duration-300"
+                                    x-transition:enter-start="opacity-0 -translate-y-2"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in duration-200"
+                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 -translate-y-2"
+                                    x-cloak
+                                >
                                     <div class="px-6 pb-6 text-gray-300 leading-relaxed text-sm sm:text-base border-t border-[#2a2520] pt-4">
                                         {{ $faq['a'] }}
                                     </div>
@@ -305,6 +378,12 @@
                             <p class="text-white/70 max-w-sm leading-relaxed text-sm">
                                 Solusi manajemen laundry cerdas, dari kasir hingga laporan bulanan. Cepat, transparan, dan terpercaya.
                             </p>
+                            <a
+                                href="mailto:support@vaultlaundry.web.id"
+                                class="mt-5 inline-flex text-sm font-bold text-white/80 underline decoration-[#FF6626] decoration-2 underline-offset-4 transition hover:text-[#FF6626]"
+                            >
+                                support@vaultlaundry.web.id
+                            </a>
                         </div>
                         
                         <div>
