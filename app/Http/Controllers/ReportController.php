@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class ReportController extends Controller
@@ -13,7 +14,9 @@ class ReportController extends Controller
     {
         abort_unless($request->user()->isAdmin() || $request->user()->isKasir(), 403);
 
-        $payments = $this->filteredPayments($request)
+        $filters = $this->validatedFilters($request);
+
+        $payments = $this->filteredPayments($filters)
             ->latest('payment_date')
             ->latest('id')
             ->paginate(15)
@@ -21,7 +24,7 @@ class ReportController extends Controller
 
         return view('reports.transactions', [
             'payments' => $payments,
-            'filters' => $request->only(['start_date', 'end_date', 'payment_status', 'payment_method']),
+            'filters' => $filters,
         ]);
     }
 
@@ -29,7 +32,8 @@ class ReportController extends Controller
     {
         abort_unless($request->user()->isAdmin(), 403);
 
-        $payments = $this->filteredPayments($request);
+        $filters = $this->validatedFilters($request);
+        $payments = $this->filteredPayments($filters);
 
         $paidPayments = (clone $payments)->where('payment_status', Payment::STATUS_PAID);
         $pendingPayments = (clone $payments)->whereIn('payment_status', [
@@ -44,7 +48,7 @@ class ReportController extends Controller
             ->pluck('total', 'payment_method');
 
         return view('reports.revenue', [
-            'filters' => $request->only(['start_date', 'end_date', 'payment_status', 'payment_method']),
+            'filters' => $filters,
             'stats' => [
                 'total_revenue_paid' => (clone $paidPayments)->sum('total_bill'),
                 'total_receivables' => (clone $pendingPayments)->selectRaw('COALESCE(SUM(total_bill - amount_paid), 0) as total')->value('total'),
@@ -55,13 +59,29 @@ class ReportController extends Controller
         ]);
     }
 
-    private function filteredPayments(Request $request)
+    /**
+     * @return array{start_date?: ?string, end_date?: ?string, payment_status?: ?string, payment_method?: ?string}
+     */
+    private function validatedFilters(Request $request): array
+    {
+        return $request->validate([
+            'start_date' => ['nullable', 'date'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'payment_status' => ['nullable', Rule::in(Payment::STATUSES)],
+            'payment_method' => ['nullable', Rule::in(Payment::METHODS)],
+        ]);
+    }
+
+    /**
+     * @param  array{start_date?: ?string, end_date?: ?string, payment_status?: ?string, payment_method?: ?string}  $filters
+     */
+    private function filteredPayments(array $filters)
     {
         return Payment::query()
             ->with(['booking.customer', 'booking.service'])
-            ->when($request->filled('start_date'), fn ($query) => $query->whereDate('payment_date', '>=', Carbon::parse($request->start_date)))
-            ->when($request->filled('end_date'), fn ($query) => $query->whereDate('payment_date', '<=', Carbon::parse($request->end_date)))
-            ->when($request->filled('payment_status'), fn ($query) => $query->where('payment_status', $request->payment_status))
-            ->when($request->filled('payment_method'), fn ($query) => $query->where('payment_method', $request->payment_method));
+            ->when($filters['start_date'] ?? null, fn ($query, $date) => $query->whereDate('payment_date', '>=', Carbon::parse($date)))
+            ->when($filters['end_date'] ?? null, fn ($query, $date) => $query->whereDate('payment_date', '<=', Carbon::parse($date)))
+            ->when($filters['payment_status'] ?? null, fn ($query, $status) => $query->where('payment_status', $status))
+            ->when($filters['payment_method'] ?? null, fn ($query, $method) => $query->where('payment_method', $method));
     }
 }

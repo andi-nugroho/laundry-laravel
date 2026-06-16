@@ -4,10 +4,13 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="robots" content="noindex, nofollow">
+        <meta name="developer" content="Andi Nugroho, andidelouise, andidev">
 
         <title>{{ config('app.name', 'VAULTLAUNDRY') }}</title>
 
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+        <link rel="manifest" href="{{ asset('site.webmanifest') }}">
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700|instrument-sans:400,500,600,700|instrument-serif:400|jetbrains-mono:400,500,600&display=swap" rel="stylesheet" />
 
