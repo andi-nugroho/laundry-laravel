@@ -4,7 +4,7 @@
 
 # VAULTLAUNDRY
 
-**Modern laundry operations platform** — booking, monitoring, payments, invoices, and realtime dashboards in one Laravel application.
+**Modern laundry operations platform** - booking, monitoring, payments, invoices, reports, and role-based dashboards in one Laravel application.
 
 [![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16+-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org)
@@ -18,7 +18,7 @@
 
 ---
 
-VAULTLAUNDRY helps laundry businesses manage customers, bookings, wash status, payments (Cash / Transfer / QRIS), PDF invoices, and role-based dashboards for **admin**, **kasir**, and **user** — with a warm premium UI and optional realtime updates via Laravel Reverb.
+VAULTLAUNDRY helps laundry businesses manage customers, services, bookings, wash status, payments, PDF invoices, and reports with a warm premium UI. The dashboard refreshes through lightweight polling, so the project can run on local development, VPS, and shared hosting without a WebSocket daemon.
 
 ![VAULTLAUNDRY Preview](public/assets/preview-laundry.png)
 
@@ -26,63 +26,55 @@ VAULTLAUNDRY helps laundry businesses manage customers, bookings, wash status, p
 
 | Area | Capability |
 | ---- | ---------- |
-| **Booking** | Create laundry bookings with auto code `LDY-YYYY-0001`, weight-based pricing, and ETA |
-| **Monitoring** | Track status from `booking_masuk` through `diambil` / `dibatalkan` |
-| **Payments** | Cash, transfer, e-wallet, partial and full settlement |
-| **QRIS / COD** | QRIS payment flow and cash-on-delivery style options for user orders |
-| **Realtime dashboard** | Live stats via Laravel Reverb + Echo when broadcast is enabled |
-| **Invoice** | Compact PDF receipt-style invoices |
-| **Roles** | Admin, kasir, and user with scoped menus and policies |
-| **WhatsApp** | Order success flow with WhatsApp confirmation link for customers |
+| Booking | Create laundry bookings with auto code `LDY-YYYY-0001`, weight-based pricing, and ETA |
+| Monitoring | Track status from `booking_masuk` through `diambil` / `dibatalkan` |
+| Payments | Cash, transfer, e-wallet, partial and full settlement |
+| QRIS / COD | QRIS mock payment flow and cash-on-delivery style options for user orders |
+| Dashboard | Role-based statistics with polling refresh and manual `Refresh Data` button |
+| Invoice | Compact PDF receipt-style invoices |
+| Reports | Transaction and revenue reports for admin/kasir |
+| Roles | Admin, kasir, and user with scoped menus and policies |
+| WhatsApp | Order success flow with WhatsApp confirmation link for customers |
 
 ## Tech Stack
 
 | Layer | Technology |
 | ----- | ---------- |
-| Backend | [Laravel 12](https://laravel.com) + [Laravel Breeze](https://laravel.com/docs/starter-kits#laravel-breeze) |
-| Database | [PostgreSQL](https://www.postgresql.org) |
-| Frontend | [Tailwind CSS](https://tailwindcss.com) + [Alpine.js](https://alpinejs.dev) + Blade |
-| Build | [Vite](https://vitejs.dev) |
+| Backend | Laravel 12 + Laravel Breeze |
+| Database | PostgreSQL |
+| Frontend | Blade + Tailwind CSS + Alpine.js |
+| Landing animation | Lenis smooth scroll for public landing page only |
+| Build | Vite |
 | PDF | barryvdh/laravel-dompdf |
-| Realtime | [Laravel Reverb](https://laravel.com/docs/reverb) + Laravel Echo |
-| Dev environment | Laravel Sail / Docker Compose (optional) |
+| Dashboard refresh | Lightweight polling to `/dashboard/stats` every 30 seconds |
+| Dev environment | Laravel Sail / Docker Compose optional |
 
 ## Database Documentation
 
-Rancangan database, Entity Relationship Diagram (ERD), relasi antar tabel, dan alur bisnis secara lengkap dapat dilihat di dokumen **[database/erd.md](database/erd.md)**.
+Database design, ERD, relations, and business flow are documented in [database/erd.md](database/erd.md). A Word-ready ERD document is available at [database/Rancangan_ERD_VAULTLAUNDRY.docx](database/Rancangan_ERD_VAULTLAUNDRY.docx).
 
 ## Continuous Integration
 
-GitHub Actions menjalankan application test suite dengan **PHP 8.3**, **Node.js 22**, dan service **PostgreSQL 16**. CI tidak menggunakan SQLite sehingga migration dan query diuji pada database engine yang sama dengan environment utama project.
+GitHub Actions runs the application test suite with PHP 8.3, Node.js 22, and PostgreSQL 16. CI does not use SQLite, so migrations and queries are tested against the same database engine family used by the project.
 
-Workflow yang tersedia:
+Workflows:
 
-- `CI`: install dependency, migrate PostgreSQL, build frontend, dan menjalankan Laravel tests.
-- `Security`: menjalankan `composer audit` dan `npm audit --audit-level=high`.
-- `Code Quality`: validasi Composer, PHP syntax, route, Blade view cache, dan Laravel config cache.
+- `CI`: install dependencies, migrate PostgreSQL, build frontend, and run Laravel tests.
+- `Security`: run `composer audit` and `npm audit --audit-level=high`.
+- `Code Quality`: validate Composer, PHP syntax, routes, Blade view cache, and Laravel config cache.
 
-File `database/schema.sql` berformat MySQL/MariaDB tetap dipertahankan hanya sebagai dokumentasi dan alternatif manual import. File tersebut bukan database utama dan tidak digunakan oleh CI.
-
-## Repository
-
-**https://github.com/andi-nugroho/laundry-laravel**
-
-Clone:
-
-```bash
-git clone https://github.com/andi-nugroho/laundry-laravel.git
-cd laundry-laravel
-```
+`database/schema.sql` remains a MySQL/MariaDB documentation and manual import reference. It is not the runtime database for CI.
 
 ## Installation
 
 ### Prerequisites
 
-- PHP 8.2+, Composer
-- Node.js 20+, npm
-- PostgreSQL (or use Sail)
+- PHP 8.2+
+- Composer
+- Node.js 20+ and npm
+- PostgreSQL, or Laravel Sail
 
-### Steps
+### Local Setup
 
 ```bash
 composer install
@@ -91,7 +83,10 @@ cp .env.example .env
 php artisan key:generate
 php artisan migrate --seed
 npm run build
+php artisan serve
 ```
+
+Open `http://127.0.0.1:8000`.
 
 ### With Laravel Sail
 
@@ -101,35 +96,21 @@ npm run build
 ./vendor/bin/sail npm install
 ./vendor/bin/sail artisan key:generate
 ./vendor/bin/sail artisan migrate --seed
-./vendor/bin/sail npm run dev
+./vendor/bin/sail npm run build
 ```
 
-Open **http://localhost** (Sail) or **http://127.0.0.1:8000** (`php artisan serve`).
+Open `http://localhost`.
 
-### Development (hot reload)
+### Development With Hot Reload
 
 ```bash
 npm run dev
 php artisan serve
 ```
 
-### Realtime (optional)
+The dashboard still works without `npm run dev`; hot reload is only for frontend development.
 
-Set Reverb variables in `.env` (see `.env.example`), then:
-
-```bash
-php artisan reverb:start
-```
-
-With Sail:
-
-```bash
-./vendor/bin/sail artisan reverb:start --host=0.0.0.0 --port=8080
-```
-
-If Reverb is not running, dashboards still work; stats load on page refresh.
-
-### Seeder accounts
+### Seeder Accounts
 
 | Role | Email | Password |
 | ---- | ----- | -------- |
@@ -141,30 +122,34 @@ If Reverb is not running, dashboards still work; stats load on page refresh.
 
 ```text
 app/
-├── Events/              # BookingChanged, PaymentChanged (broadcasting)
-├── Http/
-│   ├── Controllers/     # Booking, Payment, Dashboard, Reports, UserOrder, …
-│   ├── Middleware/      # RoleMiddleware
-│   └── Requests/        # Form validation
-├── Models/              # User, Customer, Service, Booking, Payment
-└── Policies/            # Authorization per resource
+|-- Http/
+|   |-- Controllers/      # Booking, Payment, Dashboard, Reports, UserOrder, etc.
+|   |-- Middleware/       # RoleMiddleware
+|   `-- Requests/         # Form validation
+|-- Models/               # User, Customer, Service, Booking, Payment
+`-- Policies/             # Authorization per resource
 
 resources/
-├── views/
-│   ├── welcome.blade.php    # Public landing page
-│   ├── dashboard/           # Admin, kasir, user dashboards
-│   ├── bookings/, payments/, reports/, …
-│   └── components/          # Reusable Blade UI
-├── css/app.css              # VAULTLAUNDRY design tokens & utilities
-└── js/                      # Vite entry, Echo/Reverb client
+|-- views/
+|   |-- welcome.blade.php # Public landing page
+|   |-- dashboard/        # Admin, kasir, user dashboards
+|   |-- bookings/, payments/, reports/, etc.
+|   `-- components/       # Reusable Blade UI
+|-- css/
+|   |-- app.css           # Authenticated app styles
+|   `-- public.css        # Landing/public page animation styles
+`-- js/
+    |-- app.js            # Authenticated app entry
+    |-- dashboard-polling.js
+    |-- guest.js
+    `-- public.js         # Landing page Lenis entry
 
-routes/web.php             # Web routes + role groups
-database/migrations/       # PostgreSQL schema
-public/assets/             # Landing & UI imagery (webp)
-config/reverb.php          # Realtime server config
+routes/web.php            # Web routes + role groups
+database/migrations/      # PostgreSQL schema
+public/assets/            # Landing and UI imagery
 ```
 
-### Request flow (simplified)
+### Request Flow
 
 ```mermaid
 flowchart LR
@@ -177,36 +162,12 @@ flowchart LR
     E --> G[User Orders / Status / History]
     F --> H[(PostgreSQL)]
     F --> I[PDF Invoice]
-    F --> J[Reverb Broadcast]
+    C --> J[/dashboard/stats polling/]
+    D --> J
+    E --> J
 ```
 
-## Deployment Notes
-
-1. Set `APP_ENV=production`, `APP_DEBUG=false`, and a strong `APP_KEY`.
-2. Configure PostgreSQL (`DB_*`) and run `php artisan migrate --force`.
-3. Build assets: `npm ci && npm run build`.
-4. Cache config for performance:
-
-   ```bash
-   php artisan config:cache
-   php artisan route:cache
-   php artisan view:cache
-   ```
-
-5. Run queue worker if using queued jobs: `php artisan queue:work`.
-6. For realtime, deploy **Laravel Reverb** (or compatible websocket server) and set `REVERB_*` / `VITE_REVERB_*` in production.
-7. Point the web server document root to `public/`.
-8. Ensure `storage/` and `bootstrap/cache/` are writable.
-
-Docker/Sail is recommended for local parity; production can use any PHP 8.2+ host (Forge, VPS, etc.).
-
-## Screenshots
-
-| Landing Page | Dashboard |
-| ------- | --------- |
-| ![Landing Page](public/assets/landing.png) | ![Dashboard](public/assets/dashboard.png) |
-
-Additional UI captures can be placed under `public/assets/` and linked here.
+No `php artisan reverb:start`, WebSocket daemon, or queue worker is required for the core application.
 
 ## Main Routes
 
@@ -219,33 +180,22 @@ Additional UI captures can be placed under `public/assets/` and linked here.
 | `/user/dashboard` | User stats |
 | `/bookings` | Booking management |
 | `/monitoring` | Status monitoring |
-| `/payments` | Payments & invoice |
+| `/payments` | Payments and invoice |
 | `/reports/transactions` | Transaction report |
 | `/reports/revenue` | Revenue report |
+| `/user/pesan-laundry` | User order flow |
 | `/user/status-cucian` | User wash status |
 | `/user/riwayat` | User booking history |
 
 ## Useful Commands
 
 ```bash
+composer dump-autoload
 php artisan test
 php artisan route:list
-./vendor/bin/pint
 npm run build
 ```
 
-## Contributing
-
-Contributions are welcome. Please read:
-
-- [CONTRIBUTING.md](CONTRIBUTING.md)
-- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
-- [SECURITY.md](SECURITY.md)
-
 ## License
 
-MIT © 2026 [Andi Nugroho](https://andidelouise.net). See [LICENSE](LICENSE).
-
-## Author
-
-Created by **[Andi Nugroho](https://andidelouise.net)** · [GitHub](https://github.com/andi-nugroho)
+MIT (c) 2026 [Andi Nugroho](https://andidelouise.net). See [LICENSE](LICENSE).

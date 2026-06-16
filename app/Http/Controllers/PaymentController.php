@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Support\DashboardBroadcast;
 use App\Http\Requests\StorePaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
 use App\Models\Booking;
@@ -55,7 +54,6 @@ class PaymentController extends Controller
         $data['processed_by'] = $request->user()->id;
 
         $payment = Payment::create($data);
-        DashboardBroadcast::paymentChanged($payment);
 
         return redirect()
             ->route('payments.show', $payment)
@@ -104,7 +102,6 @@ class PaymentController extends Controller
             'processed_by' => $request->user()->id,
             'notes' => $this->confirmedNotes($payment, $channel),
         ]);
-        DashboardBroadcast::paymentChanged($payment);
 
         return redirect()
             ->route('user.orders.success', $payment->booking)
@@ -156,7 +153,6 @@ class PaymentController extends Controller
         $data['processed_by'] = $request->user()->id;
 
         $payment->update($data);
-        DashboardBroadcast::paymentChanged($payment);
 
         return redirect()
             ->route('payments.show', $payment)
@@ -167,7 +163,6 @@ class PaymentController extends Controller
     {
         Gate::authorize('delete', $payment);
 
-        DashboardBroadcast::paymentChanged($payment);
         $payment->delete();
 
         return redirect()

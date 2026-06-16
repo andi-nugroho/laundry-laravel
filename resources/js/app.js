@@ -2,21 +2,21 @@ import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
 
-window.dashboardRealtime = () => ({
-    status: 'Realtime fallback',
+window.dashboardPolling = () => ({
+    status: 'Auto refresh standby',
     lastUpdated: '--:--:--',
-    connected: false,
+    isRefreshing: false,
     init() {},
 });
 
 async function startApp() {
-    if (document.querySelector('[data-dashboard-realtime]')) {
+    if (document.querySelector('[data-dashboard-polling]')) {
         try {
-            const { registerDashboardRealtime } = await import('./dashboard-realtime');
-            registerDashboardRealtime();
+            const { registerDashboardPolling } = await import('./dashboard-polling');
+            registerDashboardPolling();
         } catch (error) {
             if (import.meta.env.DEV) {
-                console.warn('Dashboard realtime module failed to load', error);
+                console.warn('Dashboard polling module failed to load', error);
             }
         }
     }
