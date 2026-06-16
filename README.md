@@ -196,6 +196,18 @@ php artisan route:list
 npm run build
 ```
 
+## Contributing
+
+Contributions are welcome. Please read:
+
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [SECURITY.md](SECURITY.md)
+
 ## License
 
-MIT (c) 2026 [Andi Nugroho](https://andidelouise.net). See [LICENSE](LICENSE).
+MIT © 2026 [Andi Nugroho](https://andidelouise.net). See [LICENSE](LICENSE).
+
+## Author
+
+Created by **[Andi Nugroho](https://andidelouise.net)** · [GitHub](https://github.com/andi-nugroho)
