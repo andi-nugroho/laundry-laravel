@@ -14,8 +14,8 @@
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8" data-dashboard-realtime x-data="dashboardRealtime()" x-init="init()">
-            <x-dashboard-realtime-bar />
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8" data-dashboard-polling x-data="dashboardPolling()" x-init="init()">
+            <x-dashboard-polling-bar />
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <x-stat-card stat="total_customers" label="Total Customers" :value="number_format($stats['total_customers'])" asset="assets/laundry-basket.webp" color="indigo" />

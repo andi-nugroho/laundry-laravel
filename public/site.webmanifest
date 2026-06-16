@@ -1,0 +1,16 @@
+{
+    "name": "VAULTLAUNDRY",
+    "short_name": "VAULTLAUNDRY",
+    "description": "Aplikasi booking, monitoring, pembayaran, dan laporan laundry berbasis web.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#FAF4EA",
+    "theme_color": "#FF6626",
+    "icons": [
+        {
+            "src": "/logo.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        }
+    ]
+}

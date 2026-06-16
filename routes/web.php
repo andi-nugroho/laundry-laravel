@@ -25,8 +25,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('bookings', BookingController::class);
     Route::resource('customers', CustomerController::class);
     Route::resource('payments', PaymentController::class);
-    Route::get('/reports/transactions', [ReportController::class, 'transactions'])->name('reports.transactions');
-    Route::get('/reports/revenue', [ReportController::class, 'revenue'])->name('reports.revenue');
+    Route::middleware('role:admin,kasir')->group(function () {
+        Route::get('/reports/transactions', [ReportController::class, 'transactions'])->name('reports.transactions');
+    });
+
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/reports/revenue', [ReportController::class, 'revenue'])->name('reports.revenue');
+    });
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/dashboard', [DashboardController::class, 'admin'])->name('dashboard.admin');

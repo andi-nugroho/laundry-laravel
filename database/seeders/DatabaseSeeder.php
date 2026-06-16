@@ -35,15 +35,18 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($users as $user) {
-            User::updateOrCreate(
+            $model = User::updateOrCreate(
                 ['email' => $user['email']],
                 [
                     'name' => $user['name'],
                     'password' => Hash::make('password'),
-                    'role' => $user['role'],
                     'email_verified_at' => now(),
                 ]
             );
+
+            $model->forceFill([
+                'role' => $user['role'],
+            ])->save();
         }
 
         $this->call(ServiceSeeder::class);

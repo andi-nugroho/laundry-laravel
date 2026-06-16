@@ -47,7 +47,7 @@ npm run dev
 php artisan serve
 ```
 
-For realtime dashboard updates locally, also run Reverb (see README).
+Dashboard statistics refresh through lightweight polling, so no websocket daemon or queue worker is required for local development.
 
 ## Development Workflow
 

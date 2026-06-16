@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Support\DashboardBroadcast;
 use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\Payment;
@@ -55,10 +54,8 @@ class UserOrderController extends Controller
             'status' => Booking::STATUS_BOOKING_MASUK,
             'notes' => $data['notes'] ?? null,
         ]);
-        DashboardBroadcast::bookingChanged($booking);
 
         $payment = $this->createPaymentForOrder($booking, $data['payment_option'], $totalPrice);
-        DashboardBroadcast::paymentChanged($payment);
 
         if ($data['payment_option'] === 'cod') {
             return redirect()

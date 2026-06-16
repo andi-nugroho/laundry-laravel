@@ -1,2 +1,14 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin
+Disallow: /kasir
+Disallow: /user
+Disallow: /dashboard
+Disallow: /login
+Disallow: /register
+Disallow: /profile
+Disallow: /payments
+Disallow: /bookings
+Disallow: /reports
+
+Sitemap: https://vaultlaundry.web.id/sitemap.xml
