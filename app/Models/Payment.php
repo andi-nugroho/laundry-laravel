@@ -91,6 +91,14 @@ class Payment extends Model
         return sprintf('PAY-%s-%04d', $year, $nextNumber);
     }
 
+    public function isCod(): bool
+    {
+        $notes = strtolower((string) $this->notes);
+
+        return str_contains($notes, 'payment_channel=cod')
+            || str_contains($notes, 'cod / bayar di tempat');
+    }
+
     public function booking(): BelongsTo
     {
         return $this->belongsTo(Booking::class);

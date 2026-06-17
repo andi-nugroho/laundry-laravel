@@ -55,7 +55,32 @@ class ReportTest extends TestCase
 
         $this->actingAs($kasir)
             ->get(route('reports.revenue'))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertSee('Akses Tidak Diizinkan')
+            ->assertSee('Ke Dashboard');
+    }
+
+    public function test_admin_can_access_revenue_chart_ranges(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        Payment::factory()->create([
+            'payment_code' => 'PAY-2026-9401',
+            'amount_paid' => 100000,
+            'total_bill' => 100000,
+            'payment_status' => Payment::STATUS_PAID,
+            'payment_method' => Payment::METHOD_CASH,
+            'payment_date' => now(),
+        ]);
+
+        foreach (['7d', '1m', '1y'] as $range) {
+            $this->actingAs($admin)
+                ->get(route('reports.revenue', ['chart_range' => $range]))
+                ->assertOk()
+                ->assertSee('Grafik Pendapatan')
+                ->assertSee('revenueChart')
+                ->assertSee('Rata-rata Pendapatan');
+        }
     }
 
     public function test_user_cannot_access_reports(): void

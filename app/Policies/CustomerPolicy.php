@@ -14,25 +14,25 @@ class CustomerPolicy
 
     public function view(User $user, Customer $customer): bool
     {
-        return $this->canManageAllCustomers($user) || $customer->user_id === $user->id;
+        return $this->canViewAllCustomers($user) || $customer->user_id === $user->id;
     }
 
     public function create(User $user): bool
     {
-        return $user->isAdmin() || $user->isKasir() || $user->isUser();
+        return $user->isAdmin() || $user->isUser();
     }
 
     public function update(User $user, Customer $customer): bool
     {
-        return $this->canManageAllCustomers($user) || $customer->user_id === $user->id;
+        return $user->isAdmin() || $customer->user_id === $user->id;
     }
 
     public function delete(User $user, Customer $customer): bool
     {
-        return $this->canManageAllCustomers($user);
+        return $user->isAdmin();
     }
 
-    private function canManageAllCustomers(User $user): bool
+    private function canViewAllCustomers(User $user): bool
     {
         return $user->isAdmin() || $user->isKasir();
     }

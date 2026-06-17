@@ -10,7 +10,7 @@
                 </p>
             </div>
 
-            @if (Auth::user()->isAdmin() || Auth::user()->isKasir())
+            @if (Auth::user()->isAdmin())
                 <a href="{{ route('customers.create') }}">
                     <x-primary-button type="button">
                         + Tambah Pelanggan
@@ -94,7 +94,7 @@
                                     <tr>
                                         <td colspan="5" class="px-6 py-12 text-center text-sm font-medium text-neutral-500">
                                             Belum ada data pelanggan.
-                                            @if (Auth::user()->isAdmin() || Auth::user()->isKasir())
+                                            @if (Auth::user()->isAdmin())
                                                 <a href="{{ route('customers.create') }}" class="font-black text-[#FF6626] hover:underline">Tambah pelanggan pertama</a>
                                             @endif
                                         </td>
@@ -152,7 +152,7 @@
                         @empty
                             <div class="col-span-full rounded-3xl border border-dashed border-[#E8DCCB] p-8 text-center text-sm font-medium text-neutral-500">
                                 Belum ada data pelanggan.
-                                @if (Auth::user()->isAdmin() || Auth::user()->isKasir())
+                                @if (Auth::user()->isAdmin())
                                     <a href="{{ route('customers.create') }}" class="font-black text-[#FF6626] hover:underline">Tambah pelanggan pertama</a>
                                 @endif
                             </div>

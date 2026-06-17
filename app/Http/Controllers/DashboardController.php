@@ -9,7 +9,10 @@ use App\Models\Service;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -25,10 +28,14 @@ class DashboardController extends Controller
     /**
      * Dashboard statistik admin/owner.
      */
-    public function admin(): View
+    public function admin(Request $request): View
     {
+        $chartRange = $this->validatedChartRange($request);
+
         return view('dashboard.admin', [
             'stats' => $this->adminStats(),
+            'chartRange' => $chartRange,
+            'chart' => $this->buildPaidPaymentChartData($chartRange),
             'recentBookings' => Booking::query()
                 ->with(['customer', 'service'])
                 ->latest('booking_date')
@@ -74,12 +81,17 @@ class DashboardController extends Controller
     /**
      * Dashboard pelanggan.
      */
-    public function user(): View
+    public function user(Request $request): View
     {
         $user = Auth::user();
+        $chartRange = $this->validatedChartRange($request);
 
         return view('dashboard.user', [
             'stats' => $this->userStats($user->id),
+            'chartRange' => $chartRange,
+            'chart' => $this->buildPaidPaymentChartData($chartRange, function ($query) use ($user) {
+                $query->whereHas('booking', fn ($bookingQuery) => $bookingQuery->where('user_id', $user->id));
+            }),
             'recentBookings' => Booking::query()
                 ->with(['service', 'payment'])
                 ->where('user_id', $user->id)
@@ -206,5 +218,150 @@ class DashboardController extends Controller
         }
 
         return number_format((float) $value, 0, ',', '.');
+    }
+
+    private function validatedChartRange(Request $request): string
+    {
+        return $request->validate([
+            'chart_range' => ['nullable', Rule::in(['7d', '1m', '1y'])],
+        ])['chart_range'] ?? '7d';
+    }
+
+    /**
+     * @return array{labels: list<string>, values: list<float>, transactions: list<int>, granularity: string, total_spent: float, paid_count: int, average_spent: float}
+     */
+    private function buildPaidPaymentChartData(string $range, ?callable $scope = null): array
+    {
+        $end = Carbon::today()->endOfDay();
+        $baseQuery = Payment::query()->where('payment_status', Payment::STATUS_PAID);
+
+        if ($scope) {
+            $scope($baseQuery);
+        }
+
+        if ($range === '1y') {
+            $start = Carbon::today()->subMonths(11)->startOfMonth()->startOfDay();
+            $periods = $this->monthlyPeriods($start, $end);
+            $rows = $this->groupPaidPayments($baseQuery, $start, $end, "TO_CHAR(payment_date, 'YYYY-MM')");
+
+            return $this->formatChartData(
+                $periods,
+                $rows,
+                fn (Carbon $date) => $date->format('Y-m'),
+                fn (Carbon $date) => $date->translatedFormat('M Y'),
+                'month'
+            );
+        }
+
+        if ($range === '1m') {
+            $start = Carbon::today()->subDays(29)->startOfDay();
+            $periods = $this->dailyPeriods($start, $end);
+            $rows = $this->groupPaidPayments($baseQuery, $start, $end, 'DATE(payment_date)');
+
+            return $this->formatChartData(
+                $periods,
+                $rows,
+                fn (Carbon $date) => $date->toDateString(),
+                fn (Carbon $date) => $date->format('d M'),
+                'day'
+            );
+        }
+
+        $start = Carbon::today()->subDays(6)->startOfDay();
+        $periods = $this->dailyPeriods($start, $end);
+        $rows = $this->groupPaidPayments($baseQuery, $start, $end, 'DATE(payment_date)');
+
+        return $this->formatChartData(
+            $periods,
+            $rows,
+            fn (Carbon $date) => $date->toDateString(),
+            fn (Carbon $date) => $date->format('d M'),
+            'day'
+        );
+    }
+
+    /**
+     * @return Collection<int, Carbon>
+     */
+    private function dailyPeriods(Carbon $start, Carbon $end): Collection
+    {
+        $periods = collect();
+        $cursor = $start->copy();
+
+        while ($cursor->lte($end)) {
+            $periods->push($cursor->copy());
+            $cursor->addDay();
+        }
+
+        return $periods;
+    }
+
+    /**
+     * @return Collection<int, Carbon>
+     */
+    private function monthlyPeriods(Carbon $start, Carbon $end): Collection
+    {
+        $periods = collect();
+        $cursor = $start->copy()->startOfMonth();
+
+        while ($cursor->lte($end)) {
+            $periods->push($cursor->copy());
+            $cursor->addMonth();
+        }
+
+        return $periods;
+    }
+
+    /**
+     * @return Collection<string, object{period: string, total: string|float, transactions: int}>
+     */
+    private function groupPaidPayments($baseQuery, Carbon $start, Carbon $end, string $periodExpression): Collection
+    {
+        return (clone $baseQuery)
+            ->whereBetween('payment_date', [$start, $end])
+            ->selectRaw("{$periodExpression} as period, COALESCE(SUM(total_bill), 0) as total, COUNT(*) as transactions")
+            ->groupBy('period')
+            ->orderBy('period')
+            ->get()
+            ->keyBy(fn ($row) => (string) $row->period);
+    }
+
+    /**
+     * @param  Collection<int, Carbon>  $periods
+     * @param  Collection<string, object{period: string, total: string|float, transactions: int}>  $rows
+     * @return array{labels: list<string>, values: list<float>, transactions: list<int>, granularity: string, total_spent: float, paid_count: int, average_spent: float}
+     */
+    private function formatChartData(
+        Collection $periods,
+        Collection $rows,
+        callable $keyResolver,
+        callable $labelResolver,
+        string $granularity
+    ): array {
+        $labels = [];
+        $values = [];
+        $transactions = [];
+
+        foreach ($periods as $period) {
+            $key = $keyResolver($period);
+            $row = $rows->get($key);
+
+            $labels[] = $labelResolver($period);
+            $values[] = (float) ($row->total ?? 0);
+            $transactions[] = (int) ($row->transactions ?? 0);
+        }
+
+        $totalSpent = array_sum($values);
+        $paidCount = array_sum($transactions);
+
+        return [
+            'labels' => $labels,
+            'values' => $values,
+            'transactions' => $transactions,
+            'granularity' => $granularity,
+            'total_spent' => $totalSpent,
+            'paid_count' => $paidCount,
+            'average_spent' => $paidCount > 0 ? $totalSpent / $paidCount : 0,
+        ];
     }
 }

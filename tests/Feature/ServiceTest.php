@@ -34,11 +34,14 @@ class ServiceTest extends TestCase
 
         $this->actingAs($kasir)
             ->get(route('services.index'))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertSee('Akses Tidak Diizinkan')
+            ->assertSee('Ke Dashboard');
 
         $this->actingAs($kasir)
             ->get(route('services.create'))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertSee('Akses Tidak Diizinkan');
 
         $service = Service::factory()->create();
 
@@ -48,7 +51,8 @@ class ServiceTest extends TestCase
 
         $this->actingAs($kasir)
             ->get(route('services.edit', $service))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertSee('Akses Tidak Diizinkan');
 
         $this->actingAs($kasir)
             ->put(route('services.update', $service), $this->validPayload())
@@ -65,11 +69,14 @@ class ServiceTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('services.index'))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertSee('Akses Tidak Diizinkan')
+            ->assertSee('Ke Dashboard');
 
         $this->actingAs($user)
             ->get(route('services.create'))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertSee('Akses Tidak Diizinkan');
 
         $service = Service::factory()->create();
 
