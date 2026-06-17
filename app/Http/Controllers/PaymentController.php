@@ -196,9 +196,10 @@ class PaymentController extends Controller
             ->with(['customer', 'service'])
             ->when(
                 $payment,
-                fn ($query) => $query->where(fn ($bookingQuery) => $bookingQuery
-                    ->whereDoesntHave('payment')
-                    ->orWhereKey($payment->booking_id)),
+                fn ($query) => $query->where(function ($bookingQuery) use ($payment) {
+                    $bookingQuery->whereDoesntHave('payment')
+                        ->orWhere('bookings.id', $payment->booking_id);
+                }),
                 fn ($query) => $query->whereDoesntHave('payment')
             )
             ->orderBy('booking_code')
@@ -234,7 +235,7 @@ class PaymentController extends Controller
             'qris' => 'QRIS',
             'transfer' => 'Transfer Bank',
             'ewallet' => 'E-Wallet',
-            'cod' => 'COD / Bayar di Tempat',
+            'cod' => 'Bayar di Tempat',
             default => ucfirst($payment->payment_method),
         };
     }

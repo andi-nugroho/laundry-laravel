@@ -112,7 +112,104 @@ class PaymentSimulationTest extends TestCase
         $this->assertEquals(Payment::STATUS_UNPAID, $payment->payment_status);
 
         $response->assertRedirect(route('user.orders.success', $booking));
-        $response->assertSessionHas('payment_pending');
+        $response->assertSessionHas('success', 'Pesanan diterima. Pembayaran dilakukan di tempat dan akan dikonfirmasi oleh kasir.');
+    }
+
+    public function test_user_cannot_confirm_cod_payment(): void
+    {
+        $user = User::factory()->create();
+        $booking = Booking::factory()->create(['user_id' => $user->id, 'total_price' => 50000]);
+        $payment = Payment::factory()->create([
+            'booking_id' => $booking->id,
+            'payment_method' => Payment::METHOD_CASH,
+            'payment_status' => Payment::STATUS_UNPAID,
+            'total_bill' => 50000,
+            'amount_paid' => 0,
+            'notes' => 'payment_channel=cod; COD / Bayar di Tempat',
+        ]);
+
+        $this->actingAs($user)
+            ->patch(route('payments.confirm', $payment))
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('payments', [
+            'id' => $payment->id,
+            'payment_status' => Payment::STATUS_UNPAID,
+            'amount_paid' => 0,
+        ]);
+    }
+
+    public function test_kasir_can_open_payment_edit_for_cod_booking(): void
+    {
+        $kasir = User::factory()->kasir()->create();
+        $booking = Booking::factory()->create(['total_price' => 75000]);
+        $payment = Payment::factory()->create([
+            'booking_id' => $booking->id,
+            'payment_method' => Payment::METHOD_CASH,
+            'payment_status' => Payment::STATUS_UNPAID,
+            'total_bill' => 75000,
+            'amount_paid' => 0,
+            'notes' => 'payment_channel=cod; COD / Bayar di Tempat',
+        ]);
+
+        $this->actingAs($kasir)
+            ->get(route('payments.edit', $payment))
+            ->assertOk()
+            ->assertSee('Edit Pembayaran');
+    }
+
+    public function test_kasir_can_confirm_cod_payment_as_paid(): void
+    {
+        $kasir = User::factory()->kasir()->create();
+        $booking = Booking::factory()->create(['total_price' => 75000]);
+        $payment = Payment::factory()->create([
+            'booking_id' => $booking->id,
+            'payment_method' => Payment::METHOD_CASH,
+            'payment_status' => Payment::STATUS_UNPAID,
+            'total_bill' => 75000,
+            'amount_paid' => 0,
+            'notes' => 'payment_channel=cod; COD / Bayar di Tempat',
+        ]);
+
+        $this->actingAs($kasir)
+            ->put(route('payments.update', $payment), [
+                'booking_id' => $booking->id,
+                'payment_date' => now()->format('Y-m-d\TH:i'),
+                'payment_method' => Payment::METHOD_CASH,
+                'amount_paid' => 75000,
+                'notes' => $payment->notes,
+            ])
+            ->assertRedirect(route('payments.show', $payment));
+
+        $this->assertDatabaseHas('payments', [
+            'id' => $payment->id,
+            'payment_status' => Payment::STATUS_PAID,
+            'amount_paid' => 75000,
+            'processed_by' => $kasir->id,
+        ]);
+    }
+
+    public function test_cod_success_page_shows_bayar_di_tempat_message(): void
+    {
+        $user = User::factory()->create();
+        $service = Service::factory()->create(['price_per_kg' => 12000, 'is_active' => true]);
+
+        $this->actingAs($user)
+            ->post(route('user.orders.checkout'), [
+                'service_id' => $service->id,
+                'weight' => 1,
+                'pickup_type' => 'pickup',
+                'payment_option' => 'cod',
+            ]);
+
+        $booking = Booking::latest('id')->first();
+
+        $this->actingAs($user)
+            ->get(route('user.orders.success', $booking))
+            ->assertOk()
+            ->assertSee('Bayar di Tempat')
+            ->assertSee('Pesanan diterima. Pembayaran dilakukan di tempat dan akan dikonfirmasi oleh kasir.')
+            ->assertDontSee('Saya Sudah Bayar');
     }
 
     public function test_mock_payment_page_shows_transfer_instructions(): void

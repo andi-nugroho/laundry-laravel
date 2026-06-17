@@ -167,7 +167,7 @@
                 </nav>
             </header>
 
-            <section class="relative z-10 vault-section flex min-h-[calc(100vh-72px)] items-center pt-28 pb-12 sm:pt-[7.25rem] lg:pt-32 lg:pb-20">
+            <section id="hero" class="relative z-10 vault-section flex min-h-[calc(100vh-72px)] items-center pt-28 pb-12 sm:pt-[7.25rem] lg:pt-32 lg:pb-20">
                 <div class="grid w-full items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
                     <div class="max-w-3xl">
                         <p class="reveal font-mono-vault mb-6 inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-[#FF6626]">
@@ -490,6 +490,8 @@
                     </span>
                 </div>
             </footer>
+
+            <x-floating-assistant />
         </main>
     </body>
 </html>

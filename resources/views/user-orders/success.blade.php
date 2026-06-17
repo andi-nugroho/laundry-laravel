@@ -2,7 +2,7 @@
     $payment = $booking->payment;
     $isPaid = $payment?->payment_status === \App\Models\Payment::STATUS_PAID;
     $isCod = $paymentChannel === 'cod';
-    $headline = $isPaid ? 'Pembayaran Berhasil' : ($isCod ? 'Menunggu Pembayaran Saat Pengambilan' : 'Pesanan Diterima!');
+    $headline = $isPaid ? 'Pembayaran Berhasil' : ($isCod ? 'Pesanan Diterima!' : 'Pesanan Diterima!');
     $waMessage = rawurlencode("Halo VAULTLAUNDRY,\nSaya telah melakukan pembayaran untuk:\n\nBooking: {$booking->booking_code}\nPayment: ".($payment?->payment_code ?? '-')."\nTotal: Rp ".number_format($payment?->total_bill ?? $booking->total_price, 0, ',', '.')."\n\nMohon dilakukan pengecekan.\n\nTerima kasih.");
     $waUrl = "https://wa.me/6285316065960?text={$waMessage}";
 @endphp
@@ -19,14 +19,11 @@
 
     <div class="py-6">
         <div class="mx-auto max-w-4xl space-y-5 sm:px-6 lg:px-8">
-            @if (session('success') || session('payment_success') || session('payment_pending'))
+            @if (session('success') || session('payment_success'))
                 <div class="rounded-2xl border border-green-200 bg-green-50 p-4 text-sm font-semibold text-green-700">
                     {{ session('success') }}
                     @if (session('payment_success'))
                         <span class="ml-1">{{ session('payment_success') }}</span>
-                    @endif
-                    @if (session('payment_pending'))
-                        <span class="ml-1">{{ session('payment_pending') }}</span>
                     @endif
                 </div>
             @endif
@@ -71,10 +68,15 @@
                         </div>
                     @elseif ($isCod)
                         <div class="rounded-3xl border border-amber-200 bg-amber-50 p-5">
-                            <h4 class="text-base font-black text-amber-800">Menunggu Pembayaran Saat Pengambilan</h4>
-                            <p class="mt-2 text-sm font-semibold text-amber-700">
-                                Pesanan COD tercatat unpaid sampai pembayaran dikonfirmasi kasir.
-                            </p>
+                            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <h4 class="text-base font-black text-amber-800">Bayar di Tempat</h4>
+                                    <p class="mt-2 text-sm font-semibold text-amber-700">
+                                        Pesanan diterima. Pembayaran dilakukan di tempat dan akan dikonfirmasi oleh kasir.
+                                    </p>
+                                </div>
+                                @include('payments._status-badge', ['status' => 'unpaid'])
+                            </div>
                         </div>
                     @else
                         <div class="rounded-3xl border border-amber-200 bg-amber-50 p-5">
@@ -94,9 +96,11 @@
                     @endif
 
                     <div class="mt-6 flex flex-col gap-3 sm:flex-row">
-                        <a href="{{ $waUrl }}" target="_blank" rel="noopener" class="inline-flex flex-1 items-center justify-center rounded-2xl bg-[#25D366] px-5 py-3 text-sm font-black text-white shadow-lg shadow-green-500/20 transition-colors duration-200 hover:bg-[#1fb85a]">
-                            Konfirmasi via WhatsApp
-                        </a>
+                        @unless ($isCod && ! $isPaid)
+                            <a href="{{ $waUrl }}" target="_blank" rel="noopener" class="inline-flex flex-1 items-center justify-center rounded-2xl bg-[#25D366] px-5 py-3 text-sm font-black text-white shadow-lg shadow-green-500/20 transition-colors duration-200 hover:bg-[#1fb85a]">
+                                Konfirmasi via WhatsApp
+                            </a>
+                        @endunless
                         <a href="{{ route('user.status-cucian') }}" class="inline-flex flex-1 items-center justify-center rounded-2xl border border-[#E8DCCB] bg-[#FFF9F1] px-5 py-3 text-sm font-black text-neutral-800 transition-colors duration-200 hover:border-[#FF6626]/40 hover:text-[#FF6626]">
                             Lihat Status Cucian
                         </a>

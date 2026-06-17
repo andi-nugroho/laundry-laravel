@@ -60,8 +60,7 @@ class UserOrderController extends Controller
         if ($data['payment_option'] === 'cod') {
             return redirect()
                 ->route('user.orders.success', $booking)
-                ->with('success', 'Pesanan berhasil dibuat')
-                ->with('payment_pending', 'Menunggu Pembayaran Saat Pengambilan');
+                ->with('success', 'Pesanan diterima. Pembayaran dilakukan di tempat dan akan dikonfirmasi oleh kasir.');
         }
 
         return redirect()
@@ -153,7 +152,7 @@ class UserOrderController extends Controller
             'qris' => 'QRIS',
             'transfer' => 'Transfer Bank',
             'ewallet' => 'E-Wallet',
-            'cod' => 'COD / Bayar di Tempat',
+            'cod' => 'Bayar di Tempat',
             default => ucfirst($payment->payment_method),
         };
     }

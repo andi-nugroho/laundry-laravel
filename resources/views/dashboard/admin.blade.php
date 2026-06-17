@@ -30,6 +30,44 @@
                 <x-stat-card stat="total_receivables" label="Piutang" :value="'Rp '.number_format($stats['total_receivables'], 0, ',', '.')" asset="assets/chartpie.webp" color="rose" />
             </div>
 
+            <div class="rounded-3xl border border-[#E8DCCB] bg-[#FFF9F1] p-4 shadow-[0_18px_45px_rgba(24,21,18,0.08)] sm:p-6">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h3 class="text-lg font-black text-neutral-950">Grafik Pendapatan</h3>
+                        <p class="mt-1 text-sm font-medium text-neutral-500">Ringkasan pendapatan lunas dari seluruh transaksi</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach (['7d' => '7 Hari', '1m' => '1 Bulan', '1y' => '1 Tahun'] as $range => $label)
+                            <a
+                                href="{{ route('dashboard.admin', ['chart_range' => $range]) }}"
+                                class="inline-flex items-center rounded-full px-4 py-2 text-xs font-black transition {{ $chartRange === $range ? 'bg-[#FF6626] text-white shadow-lg shadow-orange-500/20' : 'border border-[#E8DCCB] bg-[#FFF9F1] text-neutral-700 hover:border-[#FF6626]/40 hover:text-[#FF6626]' }}"
+                            >
+                                {{ $label }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div class="rounded-2xl border border-[#E8DCCB] bg-[#FBF3E7] p-4">
+                        <div class="text-[0.68rem] font-black uppercase tracking-[0.12em] text-neutral-400">Total Pendapatan</div>
+                        <div class="mt-1 text-2xl font-black text-neutral-950">Rp {{ number_format($chart['total_spent'], 0, ',', '.') }}</div>
+                    </div>
+                    <div class="rounded-2xl border border-[#E8DCCB] bg-[#FBF3E7] p-4">
+                        <div class="text-[0.68rem] font-black uppercase tracking-[0.12em] text-neutral-400">Transaksi Lunas</div>
+                        <div class="mt-1 text-2xl font-black text-neutral-950">{{ number_format($chart['paid_count']) }}</div>
+                    </div>
+                    <div class="rounded-2xl border border-[#E8DCCB] bg-[#FBF3E7] p-4">
+                        <div class="text-[0.68rem] font-black uppercase tracking-[0.12em] text-neutral-400">Rata-rata Pendapatan</div>
+                        <div class="mt-1 text-2xl font-black text-neutral-950">Rp {{ number_format($chart['average_spent'], 0, ',', '.') }}</div>
+                    </div>
+                </div>
+
+                <div class="mt-6 h-72 sm:h-80">
+                    <canvas id="adminRevenueChart" aria-label="Grafik pendapatan" role="img"></canvas>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 <div class="bg-white shadow-sm sm:rounded-xl ring-1 ring-gray-100 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100">
@@ -97,4 +135,58 @@
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('adminRevenueChart');
+            if (! canvas || typeof Chart === 'undefined') {
+                return;
+            }
+
+            const labels = @json($chart['labels']);
+            const values = @json($chart['values']);
+
+            new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Pendapatan (Rp)',
+                        data: values,
+                        backgroundColor: 'rgba(255, 102, 38, 0.82)',
+                        borderColor: '#FF6626',
+                        borderWidth: 1,
+                        borderRadius: 10,
+                        maxBarThickness: 42,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label(context) {
+                                    const value = context.parsed.y ?? 0;
+                                    return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
+                                },
+                            },
+                        },
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback(value) {
+                                    return 'Rp ' + new Intl.NumberFormat('id-ID', { notation: 'compact' }).format(value);
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+        });
+    </script>
 </x-app-layout>

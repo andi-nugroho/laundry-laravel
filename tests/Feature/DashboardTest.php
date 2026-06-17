@@ -84,7 +84,9 @@ class DashboardTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('dashboard.kasir'))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertSee('Akses Tidak Diizinkan')
+            ->assertSee('Ke Dashboard');
     }
 
     public function test_kasir_cannot_access_admin_dashboard(): void
@@ -93,7 +95,9 @@ class DashboardTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('dashboard.admin'))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertSee('Akses Tidak Diizinkan')
+            ->assertSee('Ke Dashboard');
     }
 
     public function test_user_cannot_access_admin_dashboard(): void
@@ -102,7 +106,9 @@ class DashboardTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('dashboard.admin'))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertSee('Akses Tidak Diizinkan')
+            ->assertSee('Ke Dashboard');
     }
 
     public function test_login_redirects_admin_to_role_dashboard_via_dashboard_route(): void
@@ -179,6 +185,8 @@ class DashboardTest extends TestCase
             ->get(route('dashboard.admin'))
             ->assertOk()
             ->assertSee('Total Customers')
+            ->assertSee('Grafik Pendapatan')
+            ->assertSee('adminRevenueChart')
             ->assertSee('2')
             ->assertSee('Services Aktif')
             ->assertSee('1')
@@ -254,9 +262,18 @@ class DashboardTest extends TestCase
             ->get(route('dashboard.user'))
             ->assertOk()
             ->assertSee('Total Booking Saya')
-            ->assertSee('Pembayaran Paid')
+            ->assertSee('Total Pengeluaran')
+            ->assertSee('Grafik Pengeluaran Saya')
+            ->assertSee('userSpendingChart')
             ->assertSee('Rp 125.000')
             ->assertSee('LDY-2026-9201')
             ->assertDontSee('LDY-2026-9202');
+
+        foreach (['7d', '1m', '1y'] as $range) {
+            $this->actingAs($user)
+                ->get(route('dashboard.user', ['chart_range' => $range]))
+                ->assertOk()
+                ->assertSee('Grafik Pengeluaran Saya');
+        }
     }
 }
