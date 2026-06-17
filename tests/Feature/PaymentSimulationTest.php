@@ -89,6 +89,13 @@ class PaymentSimulationTest extends TestCase
 
         $response->assertRedirect(route('payments.pay', $payment));
         $response->assertSessionHas('success');
+
+        $this->actingAs($user)
+            ->get(route('payments.pay', $payment))
+            ->assertOk()
+            ->assertSee('Scan QRIS untuk menyelesaikan pembayaran')
+            ->assertSee('Menunggu Konfirmasi')
+            ->assertSee('Saya Sudah Bayar');
     }
 
     public function test_user_checkout_cod_goes_directly_to_success_unpaid(): void
@@ -113,6 +120,61 @@ class PaymentSimulationTest extends TestCase
 
         $response->assertRedirect(route('user.orders.success', $booking));
         $response->assertSessionHas('payment_pending');
+
+        $this->actingAs($user)
+            ->get(route('user.orders.success', $booking))
+            ->assertOk()
+            ->assertSee('Bayar di Tempat')
+            ->assertSee('Pembayaran dilakukan di tempat')
+            ->assertSee('akan dikonfirmasi kasir');
+    }
+
+    public function test_cod_mock_payment_page_does_not_show_paid_button(): void
+    {
+        $user = User::factory()->create();
+        $booking = Booking::factory()->create(['user_id' => $user->id, 'total_price' => 50000]);
+        $payment = Payment::factory()->create([
+            'booking_id' => $booking->id,
+            'payment_method' => Payment::METHOD_CASH,
+            'payment_status' => Payment::STATUS_UNPAID,
+            'total_bill' => 50000,
+            'amount_paid' => 0,
+            'notes' => 'payment_channel=cod; COD / Bayar di Tempat',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('payments.pay', $payment))
+            ->assertOk()
+            ->assertSee('Bayar di Tempat')
+            ->assertSee('Konfirmasi Pesanan')
+            ->assertDontSee('Saya Sudah Bayar')
+            ->assertDontSee('Saya Sudah Transfer');
+    }
+
+    public function test_user_cannot_confirm_cod_payment_as_paid(): void
+    {
+        $user = User::factory()->create();
+        $booking = Booking::factory()->create(['user_id' => $user->id, 'total_price' => 50000]);
+        $payment = Payment::factory()->create([
+            'booking_id' => $booking->id,
+            'payment_method' => Payment::METHOD_CASH,
+            'payment_status' => Payment::STATUS_UNPAID,
+            'total_bill' => 50000,
+            'amount_paid' => 0,
+            'notes' => 'payment_channel=cod; COD / Bayar di Tempat',
+        ]);
+
+        $this->actingAs($user)
+            ->patch(route('payments.confirm', $payment), [
+                'payment_method' => 'qris',
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('payments', [
+            'id' => $payment->id,
+            'payment_status' => Payment::STATUS_UNPAID,
+            'amount_paid' => 0,
+        ]);
     }
 
     public function test_mock_payment_page_shows_transfer_instructions(): void

@@ -1,6 +1,7 @@
 @php
     $booking = $payment->booking;
-    $confirmLabel = $paymentChannel === 'transfer' ? 'Saya Sudah Transfer' : 'Saya Sudah Bayar';
+    $isCod = $paymentChannel === 'cod';
+    $confirmLabel = $isCod ? 'Konfirmasi Pesanan' : ($paymentChannel === 'transfer' ? 'Saya Sudah Transfer' : 'Saya Sudah Bayar');
 @endphp
 
 <x-app-layout>
@@ -9,7 +10,9 @@
             <h2 class="text-xl font-black leading-tight text-neutral-900">
                 {{ __('Pembayaran Laundry') }}
             </h2>
-            <p class="mt-1 text-sm font-medium text-neutral-500">Selesaikan pembayaran sebelum konfirmasi WhatsApp.</p>
+            <p class="mt-1 text-sm font-medium text-neutral-500">
+                {{ $isCod ? 'Pesanan COD akan dibayar di tempat dan dikonfirmasi kasir.' : 'Selesaikan pembayaran sebelum konfirmasi WhatsApp.' }}
+            </p>
         </div>
     </x-slot>
 
@@ -52,8 +55,8 @@
                             </div>
 
                             @include('payments._status-badge', [
-                                'status' => 'waiting_confirmation',
-                                'displayStatus' => 'waiting confirmation',
+                                'status' => $isCod ? 'unpaid' : 'pending_confirmation',
+                                'payment' => $payment,
                             ])
                         </div>
 
@@ -70,14 +73,32 @@
                                 <div class="mt-2 text-3xl font-black text-neutral-950">Rp {{ number_format($payment->total_bill, 0, ',', '.') }}</div>
                                 <div class="mt-3 flex flex-wrap items-center gap-2 text-sm font-bold text-neutral-500">
                                     <span>Metode: {{ $paymentMethodLabel }}</span>
-                                    <span class="h-1 w-1 rounded-full bg-neutral-300"></span>
-                                    <span>Sisa waktu: <span class="text-[#FF6626]" x-text="timeLeft()"></span></span>
+                                    @unless ($isCod)
+                                        <span class="h-1 w-1 rounded-full bg-neutral-300"></span>
+                                        <span>Sisa waktu: <span class="text-[#FF6626]" x-text="timeLeft()"></span></span>
+                                    @endunless
                                 </div>
                             </div>
                         </div>
 
                         <div class="mt-6">
-                            @if ($paymentChannel === 'qris')
+                            @if ($isCod)
+                                <div class="rounded-3xl border border-amber-200 bg-amber-50 p-6">
+                                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+                                        <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl bg-[#FF6626] text-white shadow-lg shadow-orange-500/25">
+                                            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.5L19 9.5V19a2 2 0 0 1-2 2Z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-xl font-black text-amber-900">Bayar di Tempat</h3>
+                                            <p class="mt-2 text-sm font-semibold leading-6 text-amber-700">
+                                                Tidak perlu melakukan pembayaran online. Pembayaran dilakukan di tempat dan akan dikonfirmasi kasir.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @elseif ($paymentChannel === 'qris')
                                 <div class="rounded-3xl border border-[#E8DCCB] bg-[#FFF9F1] p-6 text-center">
                                     <div class="mx-auto grid h-56 w-56 grid-cols-7 gap-1 rounded-3xl border-8 border-white bg-white p-4 shadow-[0_18px_45px_rgba(24,21,18,0.10)]">
                                         @for ($i = 0; $i < 49; $i++)
@@ -119,18 +140,24 @@
                         <div class="lg:sticky lg:top-28">
                             <h3 class="text-lg font-black text-neutral-950">Konfirmasi Pembayaran</h3>
                             <p class="mt-2 text-sm font-semibold text-neutral-500">
-                                Klik konfirmasi hanya setelah pembayaran benar-benar dilakukan.
+                                {{ $isCod ? 'Konfirmasi pesanan untuk melihat instruksi COD dan status cucian.' : 'Klik konfirmasi hanya setelah pembayaran benar-benar dilakukan.' }}
                             </p>
 
-                            <form method="POST" action="{{ route('payments.confirm', $payment) }}" class="mt-6">
-                                @csrf
-                                @method('PATCH')
-                                <input type="hidden" name="payment_method" value="{{ $paymentChannel }}">
-
-                                <button type="submit" class="w-full rounded-2xl bg-[#FF6626] px-5 py-3 text-sm font-black text-white shadow-lg shadow-orange-500/25 transition-colors duration-200 hover:bg-[#d94b12]">
+                            @if ($isCod)
+                                <a href="{{ route('user.orders.success', $booking) }}" class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-[#FF6626] px-5 py-3 text-sm font-black text-white shadow-lg shadow-orange-500/25 transition-colors duration-200 hover:bg-[#d94b12]">
                                     {{ $confirmLabel }}
-                                </button>
-                            </form>
+                                </a>
+                            @else
+                                <form method="POST" action="{{ route('payments.confirm', $payment) }}" class="mt-6">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="payment_method" value="{{ $paymentChannel }}">
+
+                                    <button type="submit" class="w-full rounded-2xl bg-[#FF6626] px-5 py-3 text-sm font-black text-white shadow-lg shadow-orange-500/25 transition-colors duration-200 hover:bg-[#d94b12]">
+                                        {{ $confirmLabel }}
+                                    </button>
+                                </form>
+                            @endif
 
                             <a href="{{ route('bookings.show', $booking) }}" class="mt-3 inline-flex w-full items-center justify-center rounded-2xl border border-[#E8DCCB] bg-[#FFF9F1] px-5 py-3 text-sm font-black text-neutral-800 transition-colors duration-200 hover:border-[#FF6626]/40 hover:text-[#FF6626]">
                                 Bayar Nanti
@@ -139,7 +166,7 @@
                             <div class="mt-6 rounded-3xl border border-amber-200 bg-amber-50 p-4">
                                 <div class="text-sm font-black text-amber-800">Status sementara</div>
                                 <p class="mt-1 text-xs font-semibold leading-5 text-amber-700">
-                                    Payment masih tercatat unpaid sampai tombol konfirmasi pembayaran ditekan.
+                                    {{ $isCod ? 'Status tetap Bayar di Tempat sampai kasir mengonfirmasi pembayaran.' : 'Status pembayaran menunggu konfirmasi sampai tombol pembayaran ditekan.' }}
                                 </p>
                             </div>
                         </div>

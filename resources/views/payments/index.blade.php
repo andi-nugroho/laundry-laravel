@@ -49,7 +49,7 @@
                                         $badgeStatus = Auth::user()->isUser()
                                             && $payment->payment_status === \App\Models\Payment::STATUS_UNPAID
                                             && $payment->payment_method !== \App\Models\Payment::METHOD_CASH
-                                                ? 'waiting_confirmation'
+                                                ? 'pending_confirmation'
                                                 : $payment->payment_status;
                                     @endphp
                                     <tr>
@@ -60,7 +60,7 @@
                                         </td>
                                         <td class="vault-nowrap px-3 py-3 text-sm font-bold text-neutral-900 text-right">Rp {{ number_format($payment->total_bill, 0, ',', '.') }}</td>
                                         <td class="vault-nowrap px-3 py-3">
-                                            @include('payments._status-badge', ['status' => $badgeStatus])
+                                            @include('payments._status-badge', ['status' => $badgeStatus, 'payment' => $payment])
                                         </td>
                                         <td class="vault-nowrap px-3 py-3 text-sm font-medium capitalize text-neutral-600">{{ $payment->payment_method }}</td>
                                         <td class="px-3 py-3">
@@ -77,7 +77,9 @@
                                                 @endif
 
                                                 @can('update', $payment)
-                                                    <a href="{{ route('payments.edit', $payment) }}" class="vault-action-primary">Edit</a>
+                                                    <a href="{{ route('payments.edit', $payment) }}" class="vault-action-primary">
+                                                        {{ in_array($payment->payment_status, [\App\Models\Payment::STATUS_UNPAID, \App\Models\Payment::STATUS_PARTIAL], true) ? 'Bayar' : 'Edit' }}
+                                                    </a>
                                                 @endcan
 
                                                 @can('delete', $payment)
@@ -112,7 +114,7 @@
                                 $badgeStatus = Auth::user()->isUser()
                                     && $payment->payment_status === \App\Models\Payment::STATUS_UNPAID
                                     && $payment->payment_method !== \App\Models\Payment::METHOD_CASH
-                                        ? 'waiting_confirmation'
+                                        ? 'pending_confirmation'
                                         : $payment->payment_status;
                             @endphp
                             <article class="vault-record-card">
@@ -121,7 +123,7 @@
                                         <h3 class="text-base font-black text-neutral-950">{{ $payment->payment_code }}</h3>
                                         <p class="mt-1 text-sm font-medium text-neutral-500 truncate">{{ $payment->booking?->booking_code ?? '-' }} — {{ $payment->booking?->customer?->name ?? '-' }}</p>
                                     </div>
-                                    @include('payments._status-badge', ['status' => $badgeStatus])
+                                    @include('payments._status-badge', ['status' => $badgeStatus, 'payment' => $payment])
                                 </div>
 
                                 <div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -147,7 +149,9 @@
                                     @endif
 
                                     @can('update', $payment)
-                                        <a href="{{ route('payments.edit', $payment) }}" class="vault-action-primary">Edit</a>
+                                        <a href="{{ route('payments.edit', $payment) }}" class="vault-action-primary">
+                                            {{ in_array($payment->payment_status, [\App\Models\Payment::STATUS_UNPAID, \App\Models\Payment::STATUS_PARTIAL], true) ? 'Bayar' : 'Edit' }}
+                                        </a>
                                     @endcan
 
                                     @can('delete', $payment)

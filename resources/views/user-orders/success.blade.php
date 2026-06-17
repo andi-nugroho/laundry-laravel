@@ -2,7 +2,7 @@
     $payment = $booking->payment;
     $isPaid = $payment?->payment_status === \App\Models\Payment::STATUS_PAID;
     $isCod = $paymentChannel === 'cod';
-    $headline = $isPaid ? 'Pembayaran Berhasil' : ($isCod ? 'Menunggu Pembayaran Saat Pengambilan' : 'Pesanan Diterima!');
+    $headline = $isPaid ? 'Pembayaran Berhasil' : ($isCod ? 'Bayar di Tempat' : 'Pesanan Diterima!');
     $waMessage = rawurlencode("Halo VAULTLAUNDRY,\nSaya telah melakukan pembayaran untuk:\n\nBooking: {$booking->booking_code}\nPayment: ".($payment?->payment_code ?? '-')."\nTotal: Rp ".number_format($payment?->total_bill ?? $booking->total_price, 0, ',', '.')."\n\nMohon dilakukan pengecekan.\n\nTerima kasih.");
     $waUrl = "https://wa.me/6285316065960?text={$waMessage}";
 @endphp
@@ -63,31 +63,36 @@
                                 <div>
                                     <h4 class="text-base font-black text-green-800">Pembayaran Berhasil</h4>
                                     <p class="mt-2 text-sm font-semibold text-green-700">
-                                        Payment {{ $payment->payment_code }} tercatat paid. Tim VAULTLAUNDRY akan melakukan pengecekan.
+                                        Payment {{ $payment->payment_code }} tercatat lunas. Tim VAULTLAUNDRY akan melakukan pengecekan.
                                     </p>
                                 </div>
-                                @include('payments._status-badge', ['status' => 'paid'])
+                                @include('payments._status-badge', ['status' => 'paid', 'payment' => $payment])
                             </div>
                         </div>
                     @elseif ($isCod)
                         <div class="rounded-3xl border border-amber-200 bg-amber-50 p-5">
-                            <h4 class="text-base font-black text-amber-800">Menunggu Pembayaran Saat Pengambilan</h4>
-                            <p class="mt-2 text-sm font-semibold text-amber-700">
-                                Pesanan COD tercatat unpaid sampai pembayaran dikonfirmasi kasir.
-                            </p>
+                            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <h4 class="text-base font-black text-amber-800">Bayar di Tempat</h4>
+                                    <p class="mt-2 text-sm font-semibold text-amber-700">
+                                        Pembayaran dilakukan di tempat dan akan dikonfirmasi kasir saat pengambilan atau proses layanan.
+                                    </p>
+                                </div>
+                                @include('payments._status-badge', ['status' => 'unpaid', 'payment' => $payment])
+                            </div>
                         </div>
                     @else
                         <div class="rounded-3xl border border-amber-200 bg-amber-50 p-5">
                             <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
-                                    <h4 class="text-base font-black text-amber-800">Waiting Confirmation</h4>
+                                    <h4 class="text-base font-black text-amber-800">Menunggu Konfirmasi Pembayaran</h4>
                                     <p class="mt-2 text-sm font-semibold text-amber-700">
                                         Pembayaran belum dikonfirmasi. Anda masih bisa lanjut bayar dari riwayat pembayaran.
                                     </p>
                                 </div>
                                 @include('payments._status-badge', [
-                                    'status' => 'waiting_confirmation',
-                                    'displayStatus' => 'waiting confirmation',
+                                    'status' => 'pending_confirmation',
+                                    'payment' => $payment,
                                 ])
                             </div>
                         </div>

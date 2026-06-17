@@ -3,7 +3,7 @@
         $badgeStatus = Auth::user()->isUser()
             && $payment->payment_status === \App\Models\Payment::STATUS_UNPAID
             && $payment->payment_method !== \App\Models\Payment::METHOD_CASH
-                ? 'waiting_confirmation'
+                ? 'pending_confirmation'
                 : $payment->payment_status;
     @endphp
 
@@ -23,7 +23,9 @@
 
                 @can('update', $payment)
                     <a href="{{ route('payments.edit', $payment) }}">
-                        <x-primary-button type="button">Edit</x-primary-button>
+                        <x-primary-button type="button">
+                            {{ in_array($payment->payment_status, [\App\Models\Payment::STATUS_UNPAID, \App\Models\Payment::STATUS_PARTIAL], true) ? 'Bayar' : 'Edit' }}
+                        </x-primary-button>
                     </a>
                 @endcan
 
@@ -81,7 +83,7 @@
                     <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-8">
                         <dt class="text-sm font-medium text-gray-500">Status</dt>
                         <dd class="mt-1 sm:col-span-2 sm:mt-0">
-                            @include('payments._status-badge', ['status' => $badgeStatus])
+                            @include('payments._status-badge', ['status' => $badgeStatus, 'payment' => $payment])
                         </dd>
                     </div>
                     <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-8">

@@ -198,7 +198,7 @@ class PaymentController extends Controller
                 $payment,
                 fn ($query) => $query->where(fn ($bookingQuery) => $bookingQuery
                     ->whereDoesntHave('payment')
-                    ->orWhereKey($payment->booking_id)),
+                    ->orWhere('id', $payment->booking_id)),
                 fn ($query) => $query->whereDoesntHave('payment')
             )
             ->orderBy('booking_code')
